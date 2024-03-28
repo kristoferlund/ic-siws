@@ -1,0 +1,8 @@
+type WhoAmIResponse = variant {
+  Ok : record { text; text };
+  Err : text;
+};
+
+service : {
+  "whoami" : () -> (WhoAmIResponse) query;
+};

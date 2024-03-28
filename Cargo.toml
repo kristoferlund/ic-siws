@@ -1,0 +1,13 @@
+[workspace]
+members = [
+    "packages/ic_siwe_provider",
+    "packages/ic_siwe",
+    "packages/test_canister",
+]
+resolver = "2"
+
+# This patch is needed due to version conflicts around the zeroize crate
+# More info: https://github.com/solana-labs/solana/blob/master/Cargo.toml#L514
+[patch.crates-io.curve25519-dalek]
+git = "https://github.com/solana-labs/curve25519-dalek.git"
+rev = "b500cdc2a920cd5bff9e2dd974d7b97349d61464"
