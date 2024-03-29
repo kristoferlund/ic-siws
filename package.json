@@ -1,7 +1,7 @@
 {
-  "name": "ic-siwe",
+  "name": "ic-siws",
   "version": "0.0.1",
   "workspaces": [
-    "packages/ic-use-siwe-identity"
+    "packages/ic-use-siws-identity"
   ]
 }

@@ -1,8 +1,8 @@
 {
   "canisters": {
-    "ic_siwe_provider": {
-      "candid": "packages/ic_siwe_provider/ic_siwe_provider.did",
-      "package": "ic_siwe_provider",
+    "ic_siws_provider": {
+      "candid": "packages/ic_siws_provider/ic_siws_provider.did",
+      "package": "ic_siws_provider",
       "type": "rust"
     },
     "test_canister": {
