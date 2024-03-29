@@ -1,16 +1,25 @@
-![Sign in with Ethereum for the Internet Computer](/media/header.png)
 
-`ic-siwe` is a project that enables Ethereum wallet-based authentication for applications on the [Internet Computer](https://internetcomputer.org) (IC) platform. The goal of the project is to enhance the interoperability between Ethereum and the Internet Computer platform, enabling developers to build applications that leverage the strengths of both platforms.
+> [!IMPORTANT]  
+> This repository is a work in progress and is not yet ready for use. 
+
+![Sign in with Solana for the Internet Computer](/media/header.png)
+
+`ic-siws` is a project that enables Solana wallet-based authentication for applications on the [Internet Computer](https://internetcomputer.org) (IC) platform. The goal of the project is to enhance the interoperability between Solana and the Internet Computer platform, enabling developers to build applications that leverage the strengths of both platforms.
+
+## Also available
+
+[ic-siwe](https://github.com/kristoferlund/ic-siws) - The sibling project of `ic-siws`, `ic-siwe` offers the same functionality
+for Ethereum-based applications.
 
 ## Features
 
-- **Ethereum Wallet Sign-In**: Enables Ethereum wallet sign-in for IC applications. Sign in with any eth wallet to generate an IC identity and session.
+- **Solana Wallet Sign-In**: Enables Solana wallet sign-in for IC applications. Sign in with any sol wallet to generate an IC identity and session.
 
 - **Session Identity Uniqueness**: Ensures that session identities are specific to each application's context, preventing cross-app identity misuse.
 
-- **Consistent Principal Generation**: Guarantees that logging in with an Ethereum wallet consistently produces the same Principal, irrespective of the client used.
+- **Consistent Principal Generation**: Guarantees that logging in with an Solana wallet consistently produces the same Principal, irrespective of the client used.
 
-- **Direct Ethereum Address to Principal Mapping**: Creates a one-to-one correlation between Ethereum addresses and Principals within the scope of the current application.
+- **Direct Solana Address to Principal Mapping**: Creates a one-to-one correlation between Solana addresses and Principals within the scope of the current application.
 
 - **Timebound Sessions**: Allows developers to set expiration times for sessions, enhancing security and control.
 
@@ -18,55 +27,55 @@
 
 ## Usage
 
-Developers have two options to use SIWE in their IC applications:
+Developers have two options to use SIWS in their IC applications:
 
-1. **Use the prebuilt [ic_siwe_provider](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic_siwe_provider) canister**: This is the easiest way to integrate SIWE into an Internet Computer application. The pre-built canister is added to the project `dfx.json` and then configured to meet the needs of the application. `ic_siwe_provider` can be added to any Internet Computer application, independent of the application's programming language.
+1. **Use the prebuilt [ic_siwe_provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siwe_provider) canister**: This is the easiest way to integrate SIWS into an Internet Computer application. The pre-built canister is added to the project `dfx.json` and then configured to meet the needs of the application. `ic_siwe_provider` can be added to any Internet Computer application, independent of the application's programming language.
 
-2. **Use the [ic_siwe](https://crates.io/crates/ic_siwe) library**: This allows developers full control over the SIWE integration. The `ic_siwe` Rust library provides all the necessary tools for integrating SIWE into IC canisters.
+2. **Use the [ic_siws](https://crates.io/crates/ic_siws) library**: This allows developers full control over the SIWS integration. The `ic_siws` Rust library provides all the necessary tools for integrating SIWS into IC canisters.
 
-### SIWE login flow
+### SIWS login flow
 
 The below diagram illustrates the high-level login flow when using the `ic_siwe_provider` canister.
 
-1. An ICP application requests a SIWE message from the `ic_siwe_provider` canister on behalf of the user.
+1. An ICP application requests a SIWS message from the `ic_siwe_provider` canister on behalf of the user.
 
-2. The application displays the SIWE message to the user who signs it with their Ethereum wallet.
+2. The application displays the SIWS message to the user who signs it with their Solana wallet.
 
-3. The application sends the signed SIWE message to the `ic_siwe_provider` canister to login the user. The canister verifies the signature and creates an identity for the user.
+3. The application sends the signed SIWS message to the `ic_siwe_provider` canister to login the user. The canister verifies the signature and creates an identity for the user.
 
 4. The application retrieves the identity from the `ic_siwe_provider` canister.
 
 5. The application can now use the identity to make authenticated calls to canisters.
 
-![Sign in with Ethereum - Login flow](/media/flow.png)
+![Sign in with Solana - Login flow](/media/flow.png)
 
 ## Resources
 
-`ic-siwe` consists of two main packages: the Rust support library and the prebuilt identity provider canister. The project also includes React demo applications and React hooks for easy frontend integration with SIWE enabled Internet Computer canisters.
+`ic-siws` consists of two main packages: the Rust support library and the prebuilt identity provider canister. The project also includes React demo applications and React hooks for easy frontend integration with SIWS enabled Internet Computer canisters.
 
-### [ic_siwe](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic_siwe)
+### [ic_siws](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws)
 
-Rust library that provides the necessary tools for integrating Sign-In with Ethereum (SIWE) into IC canisters, allowing users to sign in using their Ethereum wallets.
+Rust library that provides the necessary tools for integrating Sign-In with Solana (SIWS) into IC canisters, allowing users to sign in using their Solana wallets.
 
-### [ic-siwe-provider](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic_siwe_provider)
+### [ic-siws-provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siwe_provider)
 
-Prebuilt canister serving as a SIWE identity provider for Internet Computer canisters. `ic_siwe-provider` packages the [ic_siwe](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic_siwe) library and makes it available as a canister that can easily be integrated into any Internet Computer application, independent of the application's programming language.
+Prebuilt canister serving as a SIWS identity provider for Internet Computer canisters. `ic_siws-provider` packages the [ic_siws](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws) library and makes it available as a canister that can easily be integrated into any Internet Computer application, independent of the application's programming language.
 
-### [ic-siwe-react-demo-rust](https://github.com/kristoferlund/ic-siwe-react-demo-rust)
+### [ic-siws-react-demo-rust](https://github.com/kristoferlund/ic-siws-react-demo-rust)
 
-React demo application that demonstrates how to integrate SIWE into an Internet Computer canister using the [ic-use-siwe-identity](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic-use-siwe-identity) hook and [ic-siwe-provider](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic_siwe_provider) canister.
+React demo application that demonstrates how to integrate SIWS into an Internet Computer canister using the [ic-use-siwe-identity](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic-use-siwe-identity) hook and [ic-siws-provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siwe_provider) canister.
 
 Try the deployed demo here: https://shtr2-2iaaa-aaaal-qckva-cai.icp0.io
 
-### [ic-siwe-react-demo-ts](https://github.com/kristoferlund/ic-siwe-react-demo-ts)
+### [ic-siws-react-demo-ts](https://github.com/kristoferlund/ic-siws-react-demo-ts)
 
 Same demo as above but this time the backend canister is written in TypeScript using [Azle](https://github.com/demergent-labs/azle).
 
 Try the deployed demo here: https://zwsg3-myaaa-aaaal-qdf7q-cai.icp0.io/
 
-### [ic-use-siwe-identity](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic-use-siwe-identity)
+### [ic-use-siwe-identity](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic-use-siwe-identity)
 
-React hook and context provider for easy frontend integration with SIWE enabled Internet Computer canisters.
+React hook and context provider for easy frontend integration with SIWS enabled Internet Computer canisters.
 
 ### [ic-use-actor](https://github.com/kristoferlund/ic-use-actor)
 
@@ -93,8 +102,8 @@ This project is licensed under the MIT License. See the LICENSE file for more de
 
 ## Future Plans
 
-The project is still in active development. Before using `ic-siwe` in production, I would like to do a more formal security audit.
+The project is still in active development. Before using `ic-siws` in production, I would like to do a more formal security audit.
 
-Also, I want to integrate SIWE into more demo applications, ideally some wallet application.
+Also, I want to integrate SIWS into more demo applications, ideally some wallet application.
 
-Most likely, there are features missing in the current implementation. If you have any ideas or requests for features, please let me know by [opening an issue](https://github.com/kristoferlund/ic-siwe/issues).
+Most likely, there are features missing in the current implementation. If you have any ideas or requests for features, please let me know by [opening an issue](https://github.com/kristoferlund/ic-siws/issues).
