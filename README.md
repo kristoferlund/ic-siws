@@ -29,21 +29,21 @@ for Ethereum-based applications.
 
 Developers have two options to use SIWS in their IC applications:
 
-1. **Use the prebuilt [ic_siwe_provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siwe_provider) canister**: This is the easiest way to integrate SIWS into an Internet Computer application. The pre-built canister is added to the project `dfx.json` and then configured to meet the needs of the application. `ic_siwe_provider` can be added to any Internet Computer application, independent of the application's programming language.
+1. **Use the prebuilt [ic_siws_provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws_provider) canister**: This is the easiest way to integrate SIWS into an Internet Computer application. The pre-built canister is added to the project `dfx.json` and then configured to meet the needs of the application. `ic_siws_provider` can be added to any Internet Computer application, independent of the application's programming language.
 
 2. **Use the [ic_siws](https://crates.io/crates/ic_siws) library**: This allows developers full control over the SIWS integration. The `ic_siws` Rust library provides all the necessary tools for integrating SIWS into IC canisters.
 
 ### SIWS login flow
 
-The below diagram illustrates the high-level login flow when using the `ic_siwe_provider` canister.
+The below diagram illustrates the high-level login flow when using the `ic_siws_provider` canister.
 
-1. An ICP application requests a SIWS message from the `ic_siwe_provider` canister on behalf of the user.
+1. An ICP application requests a SIWS message from the `ic_siws_provider` canister on behalf of the user.
 
 2. The application displays the SIWS message to the user who signs it with their Solana wallet.
 
-3. The application sends the signed SIWS message to the `ic_siwe_provider` canister to login the user. The canister verifies the signature and creates an identity for the user.
+3. The application sends the signed SIWS message to the `ic_siws_provider` canister to login the user. The canister verifies the signature and creates an identity for the user.
 
-4. The application retrieves the identity from the `ic_siwe_provider` canister.
+4. The application retrieves the identity from the `ic_siws_provider` canister.
 
 5. The application can now use the identity to make authenticated calls to canisters.
 
@@ -57,21 +57,15 @@ The below diagram illustrates the high-level login flow when using the `ic_siwe_
 
 Rust library that provides the necessary tools for integrating Sign-In with Solana (SIWS) into IC canisters, allowing users to sign in using their Solana wallets.
 
-### [ic-siws-provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siwe_provider)
+### [ic-siws-provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws_provider)
 
 Prebuilt canister serving as a SIWS identity provider for Internet Computer canisters. `ic_siws-provider` packages the [ic_siws](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws) library and makes it available as a canister that can easily be integrated into any Internet Computer application, independent of the application's programming language.
 
 ### [ic-siws-react-demo-rust](https://github.com/kristoferlund/ic-siws-react-demo-rust)
 
-React demo application that demonstrates how to integrate SIWS into an Internet Computer canister using the [ic-use-siwe-identity](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic-use-siwe-identity) hook and [ic-siws-provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siwe_provider) canister.
+React demo application that demonstrates how to integrate SIWS into an Internet Computer canister using the [ic-use-siwe-identity](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic-use-siwe-identity) hook and [ic-siws-provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws_provider) canister.
 
 Try the deployed demo here: https://shtr2-2iaaa-aaaal-qckva-cai.icp0.io
-
-### [ic-siws-react-demo-ts](https://github.com/kristoferlund/ic-siws-react-demo-ts)
-
-Same demo as above but this time the backend canister is written in TypeScript using [Azle](https://github.com/demergent-labs/azle).
-
-Try the deployed demo here: https://zwsg3-myaaa-aaaal-qdf7q-cai.icp0.io/
 
 ### [ic-use-siwe-identity](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic-use-siwe-identity)
 
