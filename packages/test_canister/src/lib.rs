@@ -6,24 +6,24 @@ use ic_cdk::{init, query};
 type GetAddressResponse = Result<String, String>;
 
 thread_local! {
-    static SIWE_PROVIDER_CANISTER: RefCell<Option<Principal>>  = RefCell::new(None);
+    static SIWS_PROVIDER_CANISTER: RefCell<Option<Principal>>  = RefCell::new(None);
 }
 
-/// The whoami method returns the calling principal and the eth address of the caller. A prerequisite
-/// for a successful response is that the test canister has been initialized with a reference to the siwe
-/// provider canister and that the caller has completed the authentication process with the siwe
+/// The whoami method returns the calling principal and the sol address of the caller. A prerequisite
+/// for a successful response is that the test canister has been initialized with a reference to the siws
+/// provider canister and that the caller has completed the authentication process with the siws
 /// provider canister.
 #[query]
 async fn whoami() -> Result<(String, String), String> {
     let calling_principal = ic_cdk::caller();
 
-    // Get the siwe provider canister reference
-    let siwe_provider_canister = SIWE_PROVIDER_CANISTER
-        .with_borrow(|canister| canister.expect("Siwe provider canister not initialized"));
+    // Get the siws provider canister reference
+    let siws_provider_canister = SIWS_PROVIDER_CANISTER
+        .with_borrow(|canister| canister.expect("Siws provider canister not initialized"));
 
-    // Call the get_address method on the siwe provider canister with the calling principal as an argument
+    // Call the get_address method on the siws provider canister with the calling principal as an argument
     let response: Result<(GetAddressResponse,), _> = ic_cdk::call(
-        siwe_provider_canister,
+        siws_provider_canister,
         "get_address",
         (calling_principal.as_slice(),),
     )
@@ -44,13 +44,13 @@ async fn whoami() -> Result<(String, String), String> {
     Ok((calling_principal.to_text(), address))
 }
 
-/// When setting up the test canister, we need to save a reference to the siwe provider canister
+/// When setting up the test canister, we need to save a reference to the siws provider canister
 /// so that we can call it later.
 #[init]
-async fn init(siwe_provider_canister: String) {
-    // Save a reference to the siwe provider canister
-    SIWE_PROVIDER_CANISTER.with(|canister| {
+async fn init(siws_provider_canister: String) {
+    // Save a reference to the siws provider canister
+    SIWS_PROVIDER_CANISTER.with(|canister| {
         *canister.borrow_mut() =
-            Some(Principal::from_text(siwe_provider_canister).expect("Invalid principal"));
+            Some(Principal::from_text(siws_provider_canister).expect("Invalid principal"));
     });
 }
