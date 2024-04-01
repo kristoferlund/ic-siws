@@ -12,7 +12,7 @@ use serde_bytes::ByteBuf;
 use crate::{update_root_hash, ADDRESS_PRINCIPAL, PRINCIPAL_ADDRESS, SETTINGS, STATE};
 
 /// Authenticates the user by verifying the signature of the SIWS message. This function also
-/// prepares the delegation to be fetched in the next step, the `siwe_get_delegation` function.
+/// prepares the delegation to be fetched in the next step, the `siws_get_delegation` function.
 ///
 /// # Arguments
 /// * `signature` (String): The signature of the SIWS message.

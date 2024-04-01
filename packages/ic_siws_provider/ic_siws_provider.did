@@ -3,7 +3,7 @@ type CanisterPublicKey = PublicKey;
 type Principal = blob;
 type PublicKey = blob;
 type SessionKey = PublicKey;
-type SiweSignature = text;
+type SiwsSignature = text;
 type Timestamp = nat64;
 
 type RuntimeFeature = variant { 
@@ -83,6 +83,6 @@ service : (settings_input : SettingsInput) -> {
   "get_caller_address" : () -> (GetAddressResponse) query;
   "get_principal" : (Address) -> (GetPrincipalResponse) query;
   "siws_prepare_login" : (Address) -> (PrepareLoginResponse);
-  "siws_login" : (SiweSignature, Address, SessionKey) -> (LoginResponse);
+  "siws_login" : (SiwsSignature, Address, SessionKey) -> (LoginResponse);
   "siws_get_delegation" : (Address, SessionKey, Timestamp) -> (GetDelegationResponse) query;
 };

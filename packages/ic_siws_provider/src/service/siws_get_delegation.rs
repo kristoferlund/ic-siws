@@ -31,7 +31,7 @@ fn siws_get_delegation(
 ) -> Result<SignedDelegation, String> {
     // Fetches the certificate for the current call, required for creating a certified signature.
     let certificate =
-        data_certificate().expect("siwe_get_delegation must be called using a query call");
+        data_certificate().expect("siws_get_delegation must be called using a query call");
 
     let pubkey = SolPubkey::from_str(pubkey.as_str()).map_err(|e| e.to_string())?;
 

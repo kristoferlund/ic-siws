@@ -92,7 +92,7 @@ fn siws_init(settings_input: SettingsInput) {
         let canister_id = ic_cdk::id();
         if !targets.contains(&canister_id) {
             panic!(
-                "ic_siwe_provider canister id {} not in the list of targets",
+                "ic_siws_provider canister id {} not in the list of targets",
                 canister_id
             );
         }
