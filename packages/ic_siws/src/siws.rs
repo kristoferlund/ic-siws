@@ -27,7 +27,7 @@ impl From<SiwsMessageError> for String {
     }
 }
 
-/// Constructs a new `SiwsMessage` for a given Solana address using the settings defined in the
+/// Constructs a new [`SiwsMessage`] for a given Solana address using the settings defined in the
 /// global [`Settings`] struct.
 ///
 /// # Arguments
@@ -36,7 +36,7 @@ impl From<SiwsMessageError> for String {
 ///
 /// # Returns
 ///
-/// A `Result` that, on success, contains a new [`SiweMessage`] instance.
+/// A `Result` that, on success, contains a new [`SiwsMessage`] instance.
 #[derive(Serialize, Deserialize, Debug, Clone, CandidType)]
 pub struct SiwsMessage {
     // RFC 4501 dns authority that is requesting the signing.
@@ -142,7 +142,7 @@ impl From<SiwsMessage> for String {
     }
 }
 
-/// The SiweMessageMap is a map of SIWS messages keyed by the Solana address of the user. SIWS messages
+/// The SiwsMessageMap is a map of SIWS messages keyed by the Solana address of the user. SIWS messages
 /// are stored in the map during the course of the login process and are removed once the login process
 /// is complete. The map is also pruned periodically to remove expired SIWS messages.
 pub struct SiwsMessageMap {

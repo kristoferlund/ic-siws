@@ -26,7 +26,7 @@ const MAX_SIGS_TO_PRUNE: usize = 10;
 ///
 /// # Example
 /// ```ignore
-/// use ic_siwe::{
+/// use ic_siws::{
 ///   login::prepare_login,
 ///   solana::SolPubkey
 /// };
@@ -59,7 +59,7 @@ pub struct LoginDetails {
 
 pub enum LoginError {
     SignatureError(SolError),
-    SiweMessageError(SiwsMessageError),
+    SiwsMessageError(SiwsMessageError),
     AddressMismatch,
     DelegationError(DelegationError),
     ASN1EncodeErr(ASN1EncodeErr),
@@ -73,7 +73,7 @@ impl From<SolError> for LoginError {
 
 impl From<SiwsMessageError> for LoginError {
     fn from(err: SiwsMessageError) -> Self {
-        LoginError::SiweMessageError(err)
+        LoginError::SiwsMessageError(err)
     }
 }
 
@@ -93,7 +93,7 @@ impl fmt::Display for LoginError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             LoginError::SignatureError(e) => write!(f, "{}", e),
-            LoginError::SiweMessageError(e) => write!(f, "{}", e),
+            LoginError::SiwsMessageError(e) => write!(f, "{}", e),
             LoginError::AddressMismatch => write!(f, "Recovered address does not match"),
             LoginError::DelegationError(e) => write!(f, "{}", e),
             LoginError::ASN1EncodeErr(e) => write!(f, "{}", e),

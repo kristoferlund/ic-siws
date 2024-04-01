@@ -31,7 +31,6 @@ bs58 = "0.5.1"
 ed25519-dalek = "1.0.1"
 
 [dev-dependencies]
-ethers = "2.0.10"
 tokio = { version = "1.13.0", features = ["full"] }
 rand = "0.8.4"
 hex-literal = "0.2.1"

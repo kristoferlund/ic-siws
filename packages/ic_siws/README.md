@@ -2,77 +2,75 @@
 
 [![Crate][crate-image]][crate-link] [![Docs][docs-image]][docs-link]
 
-`ic_siwe` is a Rust library that facilitates the integration of Ethereum wallet-based authentication with applications on the Internet Computer (ICP) platform. The library provides all necessary tools for integrating Sign-In with Ethereum (SIWE) into ICP canisters, from generating SIWE messages to creating delegate identities.
+`ic_siws` is a Rust library that facilitates the integration of Solana wallet-based authentication with applications on the Internet Computer (ICP) platform. The library provides all necessary tools for integrating Sign-In with Solna (SIWS) into ICP canisters, from generating SIWS messages to creating delegate identities.
 
-`ic_siwe` is part of the [ic-siwe](https://github.com/kristoferlund/ic-siwe) project. The goal of the project is to enhance the interoperability between Ethereum and the Internet Computer platform, enabling developers to build applications that leverage the strengths of both platforms.
+`ic_siws` is part of the [ic-siws](https://github.com/kristoferlund/ic-siws) project. The goal of the project is to enhance the interoperability between Solana and the Internet Computer platform, enabling developers to build applications that leverage the strengths of both platforms.
 
 ## Key Features
-
-- **Ethereum Wallet Sign-In**: Enables Ethereum wallet sign-in for ICP applications. Sign in with any eth wallet to generate an ICP identity and session.
+- **Solana Wallet Sign-In**: Enables Solana wallet sign-in for ICP applications. Sign in with any eth wallet to generate an ICP identity and session.
 - **Session Identity Uniqueness**: Ensures that session identities are specific to each application's context, preventing cross-app identity misuse.
-- **Consistent Principal Generation**: Guarantees that logging in with an Ethereum wallet consistently produces the same Principal, irrespective of the client used.
-- **Direct Ethereum Address to Principal Mapping**: Creates a one-to-one correlation between Ethereum addresses and Principals within the scope of the current application.
+- **Consistent Principal Generation**: Guarantees that logging in with a Solana wallet consistently produces the same Principal, irrespective of the client used.
+- **Direct Solana Address to Principal Mapping**: Creates a one-to-one correlation between Solana addresses and Principals within the scope of the current application.
 - **Timebound Sessions**: Allows developers to set expiration times for sessions, enhancing security and control.
+
+## Also available
+
+[ic-siwe](https://github.com/kristoferlund/ic-siws) - The sibling project of `ic-siws`, `ic-siwe` offers the same functionality
+for Ethereum-based applications.
 
 ## Table of Contents
 
-- [Key Features](#key-features)
-- [Table of Contents](#table-of-contents)
-- [Prebuilt `ic_siwe_provider` canister](#prebuilt-ic_siwe_provider-canister)
+- [Prebuilt `ic_siws_provider` canister](#prebuilt-ic_siws_provider-canister)
 - [React demo application](#react-demo-application)
-- [The SIWE Standard](#the-siwe-standard)
+- [SIWS: Sign In With Solana](#siws-sign-in-with-solana)
 - [Login flow](#login-flow)
-  - [SIWE canister interface](#siwe-canister-interface)
-  - [`siwe_prepare_login`](#siwe_prepare_login)
-  - [`siwe_login`](#siwe_login)
-  - [`siwe_get_delegation`](#siwe_get_delegation)
+  - [`siws_prepare_login`](#siws_prepare_login)
+  - [`siws_login`](#siws_login)
+  - [`siws_get_delegation`](#siws_get_delegation)
 - [Crate features](#crate-features)
 - [Updates](#updates)
 - [Contributing](#contributing)
-- [Author](#author)
 - [License](#license)
 
-## Prebuilt `ic_siwe_provider` canister
+## Prebuilt `ic_siws_provider` canister
 
-While the `ic_siwe` library can be integrated with any Rust based ICP project, using the pre built [ic-siwe-provider](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic_siwe_provider) canister is the easiest way to integrate Ethereum wallet authentication into your application.
+While the `ic_siws` library can be integrated with any Rust based ICP project, using the pre built [ic-siws-provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws_provider) canister is the easiest way to integrate Solana wallet authentication into your application.
 
-The canister is designed as a plug-and-play solution for developers, enabling easy integration into existing ICP applications with minimal coding requirements. By adding the pre built `ic_siwe_provider` canister to the `dfx.json` of an ICP project, developers can quickly enable Ethereum wallet-based authentication for their applications. The canister simplifies the authentication flow by managing the creation and verification of SIWE messages and handling user session management.
+The canister is designed as a plug-and-play solution for developers, enabling easy integration into existing ICP applications with minimal coding requirements. By adding the pre built `ic_siws_provider` canister to the `dfx.json` of an ICP project, developers can quickly enable Solana wallet-based authentication for their applications. The canister simplifies the authentication flow by managing the creation and verification of SIWS messages and handling user session management.
 
 ## React demo application
 
-A demo application that uses the `ic_siwe_provider` canister to demonstrate the full login flow is available at [ic-siwe-react-demo-rust](https://github.com/kristoferlund/ic-siwe-react-demo-rust). The demo uses another package from the `ic-siwe` project, [ic-use-siwe-identity](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic-use-siwe-identity), a React hook and context provider for easy frontend integration with SIWE enabled Internet Computer canisters.
+A demo application that uses the `ic_siws_provider` canister to demonstrate the full login flow is available at [ic-siws-react-demo-rust](https://github.com/kristoferlund/ic-siws-react-demo-rust). The demo uses another package from the `ic-siws` project, [ic-use-siws-identity](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic-use-siws-identity), a React hook and context provider for easy frontend integration with SIWS enabled Internet Computer canisters.
 
-## The SIWE Standard
+## SIWS: Sign In With Solana
 
-[ERC-4361: Sign-In with Ethereum](https://eips.ethereum.org/EIPS/eip-4361) - Off-chain authentication for Ethereum accounts to establish sessions
+Sign In With Solana (SIWS) is a Solana wallet standard with broad support across the Solana ecosystem. It enables users to sign messages with their Solana wallets to authenticate themselves to dapps, streamlining the authentication process by standardizing message formats for improved user experience and security. Building on the principles established by [ERC-4361: Sign-In with Ethereum](https://eips.ethereum.org/EIPS/eip-4361), SIWS simplifies the authentication flow, eliminating the need for the traditional connect + signMessage steps.
 
-The SIWE standard defines a protocol for off-chain authentication of Ethereum accounts. The protocol is designed to enable Ethereum wallet-based authentication for applications on other platforms, such as the Internet Computer. At the core of the protocol is the SIWE message, which is a signed message that contains the Ethereum address of the user and some additional metadata. The SIWE message is signed by the user's Ethereum wallet and then sent to the application's backend. The backend verifies the signature and Ethereum address and then creates a session for the user.
+At the core of the protocol is the SIWS message, which is a signed message that contains the Solana address of the user and some additional metadata. The SIWS message is signed by the user's Solana wallet and then sent to the application's backend. The backend verifies the signature and Solana address and then creates a session for the user.
 
-`ic_siwe` implements most parts of the Sign In with Ethereum (SIWE standard,
-[EIP-4361](https://eips.ethereum.org/EIPS/eip-4361) with some notable exceptions:
+`ic_siws` implements most parts of the Sign In with Solana standard, with some notable exceptions:
 
-- `nonce` - The SIWE standard requires that each SIWE message has a unique nonce. In the context of this implementation, the nonce don't add any additional security to the login flow. If random nonces are required, the `nonce` feature flag can be enabled. When this feature is enabled, the nonce is generated using a cryptographically secure random number generator.
+- `nonce` - SIWS requires that each sign-in message has a unique nonce. In the context of this implementation, the nonce don't add any additional security to the login flow and are disabled by default. If random nonces are required, the `nonce` feature flag can be enabled. When this feature is enabled, the nonce is generated using a cryptographically secure random number generator.
 
-- `not-before`, `request-id`, `resources` - Not implemented. These fields are marked as OPTIONAL in the SIWE standard and are not required for current implementation.
+- `not-before`, `request-id`, `resources` - Not implemented. These fields are marked as OPTIONAL in the SIWS standard and are not currently implemented.
 
-## Login flow
+# Login flow
 
-Creating a delegate identity using `ic_siwe` is a three-step process that consists of the following steps:
+Creating a delegate identity using `ic_siws` is a three-step process that consists of the following steps:
 1. Prepare login
 2. Login
 3. Get delegation
 
-An implementing canister is free to implement these steps in any way it sees fit. It is recommended though that implementing canisters follow the login flow described below and implement the SIWE canister interface. Doing ensures that the canister is compatible with the [ic-use-siwe-identity](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic-use-siwe-identity) React hook and context provider.
+An implementing canister is free to implement these steps in any way it sees fit. It is recommended though that implementing canisters follow the login flow described below and implement the SIWS canister interface. Doing ensures that the canister is compatible with the [ic-use-siws-identity](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic-use-siws-identity) React hook and context provider.
 
-### SIWE canister interface
+## SIWS canister interface
 
 ```text
 type Address = text;
 type CanisterPublicKey = PublicKey;
 type PublicKey = blob;
 type SessionKey = PublicKey;
-type SiweMessage = text;
-type SiweSignature = text;
+type SiwsSignature = text;
 type Timestamp = nat64;
 
 type GetDelegationResponse = variant {
@@ -101,51 +99,62 @@ type LoginDetails = record {
   user_canister_pubkey : CanisterPublicKey;
 };
 
+type SiwsMessage = record {
+  domain : text;
+  address : Address;
+  statement : text;
+  uri : text;
+  version : nat32;
+  chain_id : text;
+  nonce : text;
+  issued_at : nat64;
+  expiration_time : nat64;
+};
+
 type PrepareLoginResponse = variant {
-  Ok : SiweMessage;
+  Ok : SiwsMessage;
   Err : text;
 };
 
 service : (settings_input : SettingsInput) -> {
-  "siwe_prepare_login" : (Address) -> (PrepareLoginResponse);
-  "siwe_login" : (SiweSignature, Address, SessionKey) -> (LoginResponse);
-  "siwe_get_delegation" : (Address, SessionKey, Timestamp) -> (GetDelegationResponse) query;
+  "siws_prepare_login" : (Address) -> (PrepareLoginResponse);
+  "siws_login" : (SiwsSignature, Address, SessionKey) -> (LoginResponse);
+  "siws_get_delegation" : (Address, SessionKey, Timestamp) -> (GetDelegationResponse) query;
 };
+
 ```
 
-### `siwe_prepare_login`
+## `siws_prepare_login`
+- The `siws_prepare_login` method is called by the frontend application to initiate the login flow. The method takes the user's Solana address as a parameter and returns a SIWS message. The frontend application uses the SIWS message to prompt the user to sign the message with their Solana wallet.
+- See: [`login::prepare_login`]
 
-- The `siwe_prepare_login` method is called by the frontend application to initiate the login flow. The method takes the user's Ethereum address as a parameter and returns a SIWE message. The frontend application uses the SIWE message to prompt the user to sign the message with their Ethereum wallet.
-- See: [`login::prepare_login`](src/login.rs)
+## `login`
+- The `login` method is called by the frontend application after the user has signed the SIWS message. The method takes the user's Solana address, signature, and session identity as parameters. The method verifies the signature and Solana address and returns a delegation.
+- See: [`login::login`]
 
-### `siwe_login`
-
-- The `siwe_login` method is called by the frontend application after the user has signed the SIWE message. The method takes the user's Ethereum address, signature, and session identity as parameters. The method verifies the signature and Ethereum address and returns a delegation.
-- See: [`login::login`](src/login.rs)
-
-### `siwe_get_delegation`
-
-- The `siwe_get_delegation` method is called by the frontend application after a successful login. The method takes the delegation expiration time as a parameter and returns a delegation.
-- The `siwe_get_delegation` method is not mirrored by one function in the `ic_siwe` library. The creation of delegate identities requires setting the certified data of the canister. This should not be done by the library, but by the implementing canister.
-- Creating a delegate identity involves interacting with the following `ic_siwe` functions: [`delegation::generate_seed`](src/delegation.rs),[`delegation::create_delegation`](src/delegation.rs), [`delegation::create_delegation_hash`](src/delegation.rs), [`delegation::witness`](src/delegation.rs), [`delegation::create_certified_signature`](src/delegation.rs).
-- For a full implementation example, see the [`ic_siwe_provider`](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic_siwe_provider) canister.
+## `siws_get_delegation`
+- The `siws_get_delegation` method is called by the frontend application after a successful login. The method takes the delegation expiration time as a parameter and returns a delegation.
+- The `siws_get_delegation` method is not mirrored by one function in the `ic_siws` library. The creation of delegate identities requires setting the certified data of the canister. This should not be done by the library, but by the implementing canister.
+- Creating a delegate identity involves interacting with the following `ic_siws` functions: [`delegation::generate_seed`], [`delegation::create_delegation`] , [`delegation::create_delegation_hash`], [`delegation::witness`],
+  [`delegation::create_certified_signature`].
+- For a full implementation example, see the [`ic_siws_provider`](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws_provider) canister.
 
 The login flow is illustrated in the following diagram:
 
 ```text
                                 ┌────────┐                                        ┌────────┐                              ┌─────────┐
-                                │Frontend│                                        │Canister│                              │EthWallet│
+                                │Frontend│                                        │Canister│                              │SolWallet│
    User                         └───┬────┘                                        └───┬────┘                              └────┬────┘
     │      Push login button       ┌┴┐                                                │                                        │
     │ ────────────────────────────>│ │                                                │                                        │
     │                              │ │                                                │                                        │
-    │                              │ │          siwe_prepare_login(eth_address)      ┌┴┐                                       │
+    │                              │ │          siws_prepare_login(eth_address)      ┌┴┐                                       │
     │                              │ │ ─────────────────────────────────────────────>│ │                                       │
     │                              │ │                                               └┬┘                                       │
-    │                              │ │                OK, siwe_message                │                                        │
+    │                              │ │                OK, siws_message                │                                        │
     │                              │ │ <─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─                                        │
     │                              │ │                                                │                                        │
-    │                              │ │                                   Sign siwe_message                                    ┌┴┐
+    │                              │ │                                   Sign siws_message                                    ┌┴┐
     │                              │ │ ──────────────────────────────────────────────────────────────────────────────────────>│ │
     │                              │ │                                                │                                       │ │
     │                              │ │                  Ask user to confirm           │                                       │ │
@@ -161,7 +170,7 @@ The login flow is illustrated in the following diagram:
     │                              │ │    │ Generate random session_identity          │                                        │
     │                              │ │<───┘                                           │                                        │
     │                              │ │                                                │                                        │
-    │                              │ │             siwe_login(eth_address,            │                                        │
+    │                              │ │             siws_login(eth_address,            │                                        │
     │                              │ │          signature, session_identity)         ┌┴┐                                       │
     │                              │ │ ─────────────────────────────────────────────>│ │                                       │
     │                              │ │                                               │ │                                       │
@@ -176,7 +185,7 @@ The login flow is illustrated in the following diagram:
     │                              │ │     OK, canister_pubkey, delegation_expires    │                                        │
     │                              │ │ <─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─                                        │
     │                              │ │                                                │                                        │
-    │                              │ │     siwe_get_delegation(delegation_expires)   ┌┴┐                                       │
+    │                              │ │     siws_get_delegation(delegation_expires)   ┌┴┐                                       │
     │                              │ │ ─────────────────────────────────────────────>│ │                                       │
     │                              │ │                                               └┬┘                                       │
     │                              │ │                 OK, delegation                 │                                        │
@@ -190,19 +199,19 @@ The login flow is illustrated in the following diagram:
     │ Principal niuiu-iuhbi...-oiu  │                                                 │                                        │
     │ <─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─                                                  │                                        │
   User                          ┌───┴────┐                                        ┌───┴────┐                              ┌────┴────┐
-                                │Frontend│                                        │Canister│                              │EthWallet│
+                                │Frontend│                                        │Canister│                              │SolWallet│
                                 └────────┘                                        └────────┘                              └─────────┘
 ```
 
-## Crate features
+# Crate features
 
 The library has one optional feature that is disabled by default.
 
-- `nonce` - Enables the generation of nonces for SIWE messages. This feature initializes a random number generator with a seed from the management canister. The random number generator then is used to generate unique nonces for each generated SIWE message. Nonces don't add any additional security to the SIWE login flow but are required by the SIWE standard. When this feature is disabled, the nonce is always set to the hex encoded string `Not in use`.
+* `nonce` - Enables the generation of nonces for SIWS messages. This feature initializes a random number generator with a seed from the management canister. The random number generator then is used to generate unique nonces for each generated SIWS message. Nonces don't add any additional security to the SIWS login flow but are required by the SIWS standard. When this feature is disabled, the nonce is always set to the hex encoded string `Not in use`.
 
 ## Updates
 
-See the [CHANGELOG](CHANGELOG.md) for details on updates.
+See the [CHANGELOG](https://github.com/kristoferlund/ic-siws/blob/main/packages/ic_siws/CHANGELOG.md) for details on updates.
 
 ## Contributing
 
@@ -214,12 +223,12 @@ Contributions are welcome. Please submit your pull requests or open issues to pr
 - Twitter: [@kristoferlund](https://twitter.com/kristoferlund)
 - Discord: kristoferkristofer
 - Telegram: [@kristoferkristofer](https://t.me/kristoferkristofer)
-  
+
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for more details.
 
-[crate-image]: https://buildstats.info/crate/ic_siwe
-[crate-link]: https://crates.io/crates/ic_siwe
-[docs-image]: https://docs.rs/ic_siwe/badge.svg
-[docs-link]: https://docs.rs/ic_siwe/
+[crate-image]: https://buildstats.info/crate/ic_siws
+[crate-link]: https://crates.io/crates/ic_siws
+[docs-image]: https://docs.rs/ic_siws/badge.svg
+[docs-link]: https://docs.rs/ic_siws/
