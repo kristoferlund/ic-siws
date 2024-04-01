@@ -13,12 +13,12 @@ export interface Delegation {
 
 export type GetDelegationResponse = { Ok: SignedDelegation } | { Err: string };
 
-export interface LoginOkResponse {
+export interface LoginDetails {
   user_canister_pubkey: CanisterPublicKey;
   expiration: Timestamp;
 }
 
-export type LoginResponse = { Ok: LoginOkResponse } | { Err: string };
+export type LoginResponse = { Ok: LoginDetails } | { Err: string };
 
 export type PrepareLoginResponse = { Ok: SiwsMessage } | { Err: string };
 
@@ -42,15 +42,14 @@ export interface SiwsMessage {
   expiration_time: bigint;
 }
 
-export type SiweSignature = string;
+export type SiwsSignature = string;
 
 export type Timestamp = bigint;
-
-export interface SIWE_IDENTITY_SERVICE {
-  siwe_prepare_login: ActorMethod<[Address], PrepareLoginResponse>;
-  siwe_login: ActorMethod<[SiweSignature, Address, SessionKey], LoginResponse>;
-  siwe_get_delegation: ActorMethod<
+export interface SIWS_IDENTITY_SERVICE {
+  siws_get_delegation: ActorMethod<
     [Address, SessionKey, Timestamp],
     GetDelegationResponse
   >;
+  siws_login: ActorMethod<[SiwsSignature, Address, SessionKey], LoginResponse>;
+  siws_prepare_login: ActorMethod<[Address], PrepareLoginResponse>;
 }

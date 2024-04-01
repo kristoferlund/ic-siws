@@ -8,10 +8,11 @@ import {
 } from "react";
 import { type ActorConfig, type HttpAgentOptions } from "@dfinity/agent";
 import { DelegationIdentity, Ed25519KeyIdentity } from "@dfinity/identity";
-import type { SiweIdentityContextType } from "./context.type";
+import type { SiwsIdentityContextType } from "./context.type";
 import { IDL } from "@dfinity/candid";
 import type {
-  LoginOkResponse,
+  LoginDetails,
+  SIWS_IDENTITY_SERVICE,
   SignedDelegation as ServiceSignedDelegation,
 } from "./service.interface";
 import { clearIdentity, loadIdentity, saveIdentity } from "./local-storage";
@@ -20,7 +21,7 @@ import {
   callLogin,
   callPrepareLogin,
   createAnonymousActor,
-} from "./siwe-provider";
+} from "./siws-provider";
 import type { SiwsMessage, State } from "./state.type";
 import { createDelegationChain } from "./delegation";
 import { normalizeError } from "./error";
@@ -35,57 +36,63 @@ export * from "./service.interface";
 export * from "./storage.type";
 
 /**
- * React context for managing SIWE (Sign-In with Ethereum) identity.
+ * React context for managing SIWS (Sign-In with Solana) identity.
  */
-export const SiweIdentityContext = createContext<
-  SiweIdentityContextType | undefined
+export const SiwsIdentityContext = createContext<
+  SiwsIdentityContextType | undefined
 >(undefined);
 
 /**
- * Hook to access the SiweIdentityContext.
+ * Hook to access the SiwsIdentityContext.
  */
-export const useSiweIdentity = (): SiweIdentityContextType => {
-  const context = useContext(SiweIdentityContext);
+export const useSiwsIdentity = (): SiwsIdentityContextType => {
+  const context = useContext(SiwsIdentityContext);
   if (!context) {
     throw new Error(
-      "useSiweIdentity must be used within an SiweIdentityProvider"
+      "useSiwsIdentity must be used within an SiwsIdentityProvider"
     );
   }
   return context;
 };
 
 /**
- * Provider component for the SIWE identity context. Manages identity state and provides authentication-related functionalities.
+ * Provider component for the SIWS identity context. Manages identity state and provides authentication-related functionalities.
  *
  * @prop {IDL.InterfaceFactory} idlFactory - Required. The Interface Description Language (IDL) factory for the canister. This factory is used to create an actor interface for the canister.
  * @prop {string} canisterId - Required. The unique identifier of the canister on the Internet Computer network. This ID is used to establish a connection to the canister.
  * @prop {HttpAgentOptions} httpAgentOptions - Optional. Configuration options for the HTTP agent used to communicate with the Internet Computer network.
  * @prop {ActorConfig} actorOptions - Optional. Configuration options for the actor. These options are passed to the actor upon its creation.
- * @prop {ReactNode} children - Required. The child components that the SiweIdentityProvider will wrap. This allows any child component to access the authentication context provided by the SiweIdentityProvider.
+ * @prop {ReactNode} children - Required. The child components that the SiwsIdentityProvider will wrap. This allows any child component to access the authentication context provided by the SiwsIdentityProvider.
  *
  * @example
  * ```tsx
- * import { SiweIdentityProvider } from 'ic-use-siwe-identity';
- * import {canisterId, idlFactory} from "path-to/siwe-enabled-canister/index";
- * import { _SERVICE } from "path-to/siwe-enabled-canister.did";
+ * import { SiwsIdentityProvider } from 'ic-use-siws-identity';
+ * import { _SERVICE } from "[DECLARATIONS PATH]/declarations/ic_siws_provider/ic_siws_provider.did";
+ * import {
+ *   canisterId,
+ *   idlFactory,
+ * } from "[DECLARATIONS PATH]/declarations/ic_siws_provider/index";
  *
- * function App() {
- *   return (
- *     <SiweIdentityProvider<_SERVICE>
- *       idlFactory={idlFactory}
- *       canisterId={canisterId}
- *       // ...other props
- *     >
- *       {... your app components}
- *     </App>
- *   );
- * }
- *
- * import { SiweIdentityProvider } from "ic-use-siwe-identity";
+ * ReactDOM.createRoot(document.getElementById("root")!).render(
+ *   <React.StrictMode>
+ *     <SolanaProviders>
+ *       <SiwsIdentityProvider<_SERVICE>
+ *         canisterId={canisterId}
+ *         idlFactory={idlFactory}
+ *       >
+ *         <Actors>
+ *           <AuthGuard>
+ *             <App />
+ *           </AuthGuard>
+ *         </Actors>
+ *       </SiwsIdentityProvider>
+ *     </SolanaProviders>
+ *   </React.StrictMode>
+ * );
  *```
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function SiweIdentityProvider({
+export function SiwsIdentityProvider<T extends SIWS_IDENTITY_SERVICE>({
   httpAgentOptions,
   actorOptions,
   idlFactory,
@@ -104,18 +111,10 @@ export function SiweIdentityProvider({
   /** The unique identifier of the canister on the Internet Computer network. This ID is used to establish a connection to the canister. */
   canisterId: string;
 
-  /** The child components that the SiweIdentityProvider will wrap. This allows any child component to access the authentication context provided by the SiweIdentityProvider. */
+  /** The child components that the SiwsIdentityProvider will wrap. This allows any child component to access the authentication context provided by the SiwsIdentityProvider. */
   children: ReactNode;
 }) {
-  const { publicKey, signIn } = useWallet();
-
-  // const { address: connectedEthAddress } = useAccount();
-  // const {
-  //   signMessage,
-  //   status: signMessageStatus,
-  //   reset,
-  //   error: signMessageError,
-  // } = useSignMessage();
+  const { publicKey, signIn, connecting } = useWallet();
 
   const [state, setState] = useState<State>({
     isInitializing: true,
@@ -130,22 +129,14 @@ export function SiweIdentityProvider({
     }));
   }
 
-  // // Keep track of the promise handlers for the login method during the async login process.
-  // const loginPromiseHandlers = useRef<{
-  //   resolve: (
-  //     value: DelegationIdentity | PromiseLike<DelegationIdentity>
-  //   ) => void;
-  //   reject: (error: Error) => void;
-  // } | null>(null);
-
   /**
-   * Load a SIWE message from the provider, to be used for login. Calling prepareLogin
+   * Load a SIWS message from the provider, to be used for login. Calling prepareLogin
    * is optional, as it will be called automatically on login if not called manually.
    */
   async function prepareLogin(): Promise<SiwsMessage | undefined> {
     if (!state.anonymousActor) {
       throw new Error(
-        "Hook not initialized properly. Make sure to supply all required props to the SiweIdentityProvider."
+        "Hook not initialized properly. Make sure to supply all required props to the SiwsIdentityProvider."
       );
     }
     if (!publicKey) {
@@ -160,16 +151,15 @@ export function SiweIdentityProvider({
     });
 
     try {
-      const siweMessage = await callPrepareLogin(
+      const siwsMessage = await callPrepareLogin(
         state.anonymousActor,
         publicKey
       );
-      console.log("SIWE: ", siweMessage);
       updateState({
-        siwsMessage: siweMessage,
+        siwsMessage: siwsMessage,
         prepareLoginStatus: "success",
       });
-      return siweMessage;
+      return siwsMessage;
     } catch (e) {
       const error = normalizeError(e);
       console.error(error);
@@ -180,10 +170,7 @@ export function SiweIdentityProvider({
     }
   }
 
-  async function rejectLoginWithError(
-    error: Error | unknown,
-    message?: string
-  ) {
+  async function setLoginError(error: Error | unknown, message?: string) {
     const e = normalizeError(error);
     const errorMessage = message || e.message;
 
@@ -194,123 +181,26 @@ export function SiweIdentityProvider({
       loginStatus: "error",
       loginError: new Error(errorMessage),
     });
-
-    // loginPromiseHandlers.current?.reject(new Error(errorMessage));
   }
 
   /**
-   * This function is called when the signMessage hook has settled, that is, when the
-   * user has signed the message or canceled the signing process.
-   */
-  // async function onLoginSignatureSettled(
-  //   loginSignature: `0x${string}` | undefined,
-  //   error: SignMessageErrorType | null
-  // ) {
-  //   if (error) {
-  //     rejectLoginWithError(
-  //       error,
-  //       "An error occurred while signing the login message."
-  //     );
-  //     return;
-  //   }
-  //   if (!loginSignature) {
-  //     rejectLoginWithError(new Error("Sign message returned no data."));
-  //     return;
-  //   }
-
-  //   // Important for security! A random session identity is created on each login.
-  //   const sessionIdentity = Ed25519KeyIdentity.generate();
-  //   const sessionPublicKey = sessionIdentity.getPublicKey().toDer();
-
-  //   if (!state.anonymousActor || !connectedEthAddress) {
-  //     rejectLoginWithError(new Error("Invalid actor or address."));
-  //     return;
-  //   }
-
-  //   // Logging in is a two-step process. First, the signed SIWE message is sent to the backend.
-  //   // Then, the backend's siwe_get_delegation method is called to get the delegation.
-
-  //   let loginOkResponse: LoginOkResponse;
-  //   try {
-  //     loginOkResponse = await callLogin(
-  //       state.anonymousActor,
-  //       loginSignature,
-  //       connectedEthAddress,
-  //       sessionPublicKey
-  //     );
-  //   } catch (e) {
-  //     rejectLoginWithError(e, "Unable to login.");
-  //     return;
-  //   }
-
-  //   // Call the backend's siwe_get_delegation method to get the delegation.
-  //   let signedDelegation: ServiceSignedDelegation;
-  //   try {
-  //     signedDelegation = await callGetDelegation(
-  //       state.anonymousActor,
-  //       connectedEthAddress,
-  //       sessionPublicKey,
-  //       loginOkResponse.expiration
-  //     );
-  //   } catch (e) {
-  //     rejectLoginWithError(e, "Unable to get identity.");
-  //     return;
-  //   }
-
-  //   // Create a new delegation chain from the delegation.
-  //   const delegationChain = createDelegationChain(
-  //     signedDelegation,
-  //     loginOkResponse.user_canister_pubkey
-  //   );
-
-  //   // Create a new delegation identity from the session identity and the
-  //   // delegation chain.
-  //   const identity = DelegationIdentity.fromDelegation(
-  //     sessionIdentity,
-  //     delegationChain
-  //   );
-
-  //   // Save the identity to local storage.
-  //   saveIdentity(connectedEthAddress, sessionIdentity, delegationChain);
-
-  //   // Set the identity in state.
-  //   updateState({
-  //     loginStatus: "success",
-  //     identityAddress: connectedEthAddress,
-  //     identity,
-  //     delegationChain,
-  //   });
-
-  //   loginPromiseHandlers.current?.resolve(identity);
-
-  //   // The signMessage hook is reset so that it can be used again.
-  //   reset();
-  // }
-
-  /**
-   * Initiates the login process. If a SIWE message is not already available, it will be
+   * Initiates the login process. If a SIWS message is not already available, it will be
    * generated by calling prepareLogin.
    *
    * @returns {void} Login does not return anything. If an error occurs, the error is available in
    * the loginError property.
    */
-
   async function login() {
-    // const promise = new Promise<DelegationIdentity>((resolve, reject) => {
-    //   loginPromiseHandlers.current = { resolve, reject };
-    // });
-    // Set the promise handlers immediately to ensure they are available for error handling.
-
     if (!state.anonymousActor) {
-      rejectLoginWithError(
+      setLoginError(
         new Error(
-          "Hook not initialized properly. Make sure to supply all required props to the SiweIdentityProvider."
+          "Hook not initialized properly. Make sure to supply all required props to the SiwsIdentityProvider."
         )
       );
       return;
     }
     if (!publicKey) {
-      rejectLoginWithError(
+      setLoginError(
         new Error(
           "No Solana public key available. Call login after the user has connected their wallet."
         )
@@ -318,7 +208,7 @@ export function SiweIdentityProvider({
       return;
     }
     if (state.prepareLoginStatus === "preparing") {
-      rejectLoginWithError(
+      setLoginError(
         new Error("Don't call login while prepareLogin is running.")
       );
       return;
@@ -330,39 +220,41 @@ export function SiweIdentityProvider({
     });
 
     try {
-      // The SIWE message can be prepared in advance, or it can be generated as part of the login process.
-      let siweMessage = state.siwsMessage;
-      if (!siweMessage) {
-        siweMessage = await prepareLogin();
-        if (!siweMessage) {
-          rejectLoginWithError(
-            new Error("Prepare login failed did not return a SIWE message.")
+      // The SIWS message can be prepared in advance, or it can be generated as part of the login process.
+      let siwsMessage = state.siwsMessage;
+      if (!siwsMessage) {
+        siwsMessage = await prepareLogin();
+        if (!siwsMessage) {
+          setLoginError(
+            new Error("Prepare login failed did not return a SIWS message.")
           );
           return;
         }
       }
 
+      // expiration_time and issued_at are in nanoseconds, convert to milliseconds.
       const expMilliseconds = Number(
-        siweMessage.expiration_time / BigInt(1000000)
+        siwsMessage.expiration_time / BigInt(1000000)
       );
       const issuedAtMilliseconds = Number(
-        siweMessage.issued_at / BigInt(1000000)
+        siwsMessage.issued_at / BigInt(1000000)
       );
 
+      // Display the SIWS message for the user to sign.
       const result = await signIn?.({
-        address: siweMessage.address,
-        chainId: siweMessage.chain_id,
-        domain: siweMessage.domain,
+        address: siwsMessage.address,
+        chainId: siwsMessage.chain_id,
+        domain: siwsMessage.domain,
         expirationTime: new Date(expMilliseconds).toISOString(),
         issuedAt: new Date(issuedAtMilliseconds).toISOString(),
-        nonce: siweMessage.nonce,
-        uri: siweMessage.uri,
-        version: siweMessage.version.toString(),
-        statement: siweMessage.statement,
+        nonce: siwsMessage.nonce,
+        uri: siwsMessage.uri,
+        version: siwsMessage.version.toString(),
+        statement: siwsMessage.statement,
       });
 
       if (!result || !result.signature) {
-        rejectLoginWithError(new Error("Sign message returned no data."));
+        setLoginError(new Error("Sign message returned no data."));
         return;
       }
 
@@ -370,42 +262,39 @@ export function SiweIdentityProvider({
       const sessionIdentity = Ed25519KeyIdentity.generate();
       const sessionPublicKey = sessionIdentity.getPublicKey().toDer();
 
-      // Logging in is a two-step process. First, the signed SIWE message is sent to the backend.
-      // Then, the backend's siwe_get_delegation method is called to get the delegation.
-
-      console.log("SIG: ", bs58.encode(result.signature));
-
-      let loginOkResponse: LoginOkResponse;
+      // Logging in is a two-step process. First, the signed SIWS message is sent to the backend.
+      // Then, the backend's siws_get_delegation method is called to get the delegation.
+      let loginDetails: LoginDetails;
       try {
-        loginOkResponse = await callLogin(
+        loginDetails = await callLogin(
           state.anonymousActor,
           bs58.encode(result.signature),
           publicKey,
           sessionPublicKey
         );
       } catch (e) {
-        rejectLoginWithError(e, "Unable to login.");
+        setLoginError(e, "Unable to login.");
         return;
       }
 
-      // Call the backend's siwe_get_delegation method to get the delegation.
+      // Call the backend's siws_get_delegation method to get the delegation.
       let signedDelegation: ServiceSignedDelegation;
       try {
         signedDelegation = await callGetDelegation(
           state.anonymousActor,
           publicKey,
           sessionPublicKey,
-          loginOkResponse.expiration
+          loginDetails.expiration
         );
       } catch (e) {
-        rejectLoginWithError(e, "Unable to get identity.");
+        setLoginError(e, "Unable to get identity.");
         return;
       }
 
       // Create a new delegation chain from the delegation.
       const delegationChain = createDelegationChain(
         signedDelegation,
-        loginOkResponse.user_canister_pubkey
+        loginDetails.user_canister_pubkey
       );
 
       // Create a new delegation identity from the session identity and the
@@ -421,14 +310,14 @@ export function SiweIdentityProvider({
       // Set the identity in state.
       updateState({
         loginStatus: "success",
-        identityPublicKey: publicKey,
+        identityAddress: publicKey,
         identity,
         delegationChain,
       });
 
       return identity;
     } catch (e) {
-      rejectLoginWithError(e);
+      setLoginError(e);
     }
   }
 
@@ -444,7 +333,7 @@ export function SiweIdentityProvider({
       loginStatus: "idle",
       loginError: undefined,
       identity: undefined,
-      identityPublicKey: undefined,
+      identityAddress: undefined,
       delegationChain: undefined,
     });
     clearIdentity();
@@ -457,14 +346,14 @@ export function SiweIdentityProvider({
     try {
       const [a, i, d] = loadIdentity();
       updateState({
-        identityPublicKey: a,
+        identityAddress: a,
         identity: i,
         delegationChain: d,
         isInitializing: false,
       });
     } catch (e) {
       if (e instanceof Error) {
-        console.log("Could not load identity from local storage: ", e.message);
+        console.log("No identity loaded: ", e.message);
       }
       updateState({
         isInitializing: false,
@@ -477,7 +366,8 @@ export function SiweIdentityProvider({
    * being false.
    */
   useEffect(() => {
-    if (state.isInitializing) return;
+    if (state.isInitializing || connecting || !state.identityAddress) return;
+    if (publicKey?.equals(state.identityAddress)) return;
     clear();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [publicKey]);
@@ -499,7 +389,7 @@ export function SiweIdentityProvider({
   }, [idlFactory, canisterId, httpAgentOptions, actorOptions]);
 
   return (
-    <SiweIdentityContext.Provider
+    <SiwsIdentityContext.Provider
       value={{
         ...state,
         prepareLogin,
@@ -516,6 +406,6 @@ export function SiweIdentityProvider({
       }}
     >
       {children}
-    </SiweIdentityContext.Provider>
+    </SiwsIdentityContext.Provider>
   );
 }

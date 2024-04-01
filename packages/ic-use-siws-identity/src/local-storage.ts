@@ -5,12 +5,12 @@ import {
 } from "@dfinity/identity";
 
 import { PublicKey } from "@solana/web3.js";
-import type { SiweIdentityStorage } from "./storage.type";
+import type { SiwsIdentityStorage } from "./storage.type";
 
 const STORAGE_KEY = "siwsIdentity";
 
 /**
- * Loads the SIWE identity from local storage.
+ * Loads the SIWS identity from local storage.
  */
 export function loadIdentity() {
   const storedState = localStorage.getItem(STORAGE_KEY);
@@ -19,7 +19,7 @@ export function loadIdentity() {
     throw new Error("No stored identity found.");
   }
 
-  const s: SiweIdentityStorage = JSON.parse(storedState);
+  const s: SiwsIdentityStorage = JSON.parse(storedState);
   if (!s.publicKey || !s.sessionIdentity || !s.delegationChain) {
     throw new Error("Stored state is invalid.");
   }
@@ -35,7 +35,7 @@ export function loadIdentity() {
 }
 
 /**
- * Saves the SIWE identity to local storage.
+ * Saves the SIWS identity to local storage.
  */
 export function saveIdentity(
   publicKey: PublicKey,
@@ -53,7 +53,7 @@ export function saveIdentity(
 }
 
 /**
- * Clears the SIWE identity from local storage.
+ * Clears the SIWS identity from local storage.
  */
 export function clearIdentity() {
   localStorage.removeItem(STORAGE_KEY);

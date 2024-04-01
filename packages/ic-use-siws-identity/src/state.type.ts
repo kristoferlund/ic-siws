@@ -2,7 +2,7 @@ import type { DelegationChain, DelegationIdentity } from "@dfinity/identity";
 
 import type { ActorSubclass } from "@dfinity/agent";
 import type { PublicKey } from "@solana/web3.js";
-import type { SIWE_IDENTITY_SERVICE } from "./service.interface";
+import type { SIWS_IDENTITY_SERVICE } from "./service.interface";
 
 export type PrepareLoginStatus = "error" | "preparing" | "success" | "idle";
 export type LoginStatus = "error" | "logging-in" | "success" | "idle";
@@ -20,7 +20,7 @@ export type SiwsMessage = {
 };
 
 export type State = {
-  anonymousActor?: ActorSubclass<SIWE_IDENTITY_SERVICE>;
+  anonymousActor?: ActorSubclass<SIWS_IDENTITY_SERVICE>;
   isInitializing: boolean;
   prepareLoginStatus: PrepareLoginStatus;
   prepareLoginError?: Error;
@@ -28,6 +28,6 @@ export type State = {
   loginStatus: LoginStatus;
   loginError?: Error;
   identity?: DelegationIdentity;
-  identityPublicKey?: PublicKey;
+  identityAddress?: PublicKey;
   delegationChain?: DelegationChain;
 };

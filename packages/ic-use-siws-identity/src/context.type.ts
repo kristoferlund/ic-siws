@@ -1,12 +1,14 @@
 import { DelegationChain, DelegationIdentity } from "@dfinity/identity";
 import type { LoginStatus, PrepareLoginStatus } from "./state.type";
 
-export type SiweIdentityContextType = {
+import { PublicKey } from "@solana/web3.js";
+
+export type SiwsIdentityContextType = {
   /** Is set to `true` on mount until a stored identity is loaded from local storage or
    * none is found. */
   isInitializing: boolean;
 
-  /** Load a SIWE message from the provider canister, to be used for login. Calling prepareLogin
+  /** Load a SIWS message from the provider canister, to be used for login. Calling prepareLogin
    * is optional, as it will be called automatically on login if not called manually. */
   prepareLogin: () => void;
 
@@ -28,7 +30,7 @@ export type SiweIdentityContextType = {
   /** Error that occurred during the prepareLogin process. */
   prepareLoginError?: Error;
 
-  /** Initiates the login process by requesting a SIWE message from the backend. */
+  /** Initiates the login process by requesting a SIWS message from the backend. */
   login: () => Promise<DelegationIdentity | undefined>;
 
   /** Reflects the current status of the login process. */
@@ -60,7 +62,7 @@ export type SiweIdentityContextType = {
   /** The Ethereum address associated with current identity. This address is not necessarily
    * the same as the address of the currently connected wallet - on wallet change, the addresses
    * will differ. */
-  identityAddress?: string;
+  identityAddress?: PublicKey;
 
   /** Clears the identity from the state and local storage. Effectively "logs the user out". */
   clear: () => void;
