@@ -17,5 +17,5 @@ jobs:
       - run: npm run build --workspace ic-use-siws-identity
       - uses: JS-DevTools/npm-publish@v3
         with:
-          package: ./packages/ic-use-siwe-identity
+          package: ../packages/ic-use-siwe-identity
           token: ${{ secrets.NPM_TOKEN }}
