@@ -19,7 +19,7 @@ The canister is designed as a plug-and-play solution for developers, enabling ea
 
 ## Also available
 
-[ic-siws-provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws_provider) - The sibling project of `ic-siws-provider`, `ic-siwe-provider` offers the same functionality
+[ic-siwe-provider](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic_siwe_provider) - The sibling project of `ic-siws-provider`, `ic-siwe-provider` offers the same functionality
 for Ethereum-based applications.
 
 ## Table of Contents

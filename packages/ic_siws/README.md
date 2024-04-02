@@ -15,7 +15,7 @@
 
 ## Also available
 
-[ic-siwe](https://github.com/kristoferlund/ic-siws) - The sibling project of `ic-siws`, `ic-siwe` offers the same functionality
+[ic-siwe](https://github.com/kristoferlund/ic-siwe) - The sibling project of `ic-siws`, `ic-siwe` offers the same functionality
 for Ethereum-based applications.
 
 ## Table of Contents

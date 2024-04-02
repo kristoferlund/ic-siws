@@ -5,7 +5,7 @@
 
 ## Also available
 
-[ic-siwe](https://github.com/kristoferlund/ic-siws) - The sibling project of `ic-siws`, `ic-siwe` offers the same functionality
+[ic-siwe](https://github.com/kristoferlund/ic-siwe) - The sibling project of `ic-siws`, `ic-siwe` offers the same functionality
 for Ethereum-based applications.
 
 ## Features
@@ -60,11 +60,11 @@ Prebuilt canister serving as a SIWS identity provider for Internet Computer cani
 
 ### [ic-siws-react-demo-rust](https://github.com/kristoferlund/ic-siws-react-demo-rust)
 
-React demo application that demonstrates how to integrate SIWS into an Internet Computer canister using the [ic-use-siwe-identity](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic-use-siwe-identity) hook and [ic-siws-provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws_provider) canister.
+React demo application that demonstrates how to integrate SIWS into an Internet Computer canister using the [ic-use-siws-identity](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic-use-siws-identity) hook and [ic-siws-provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws_provider) canister.
 
-Try the deployed demo here: https://shtr2-2iaaa-aaaal-qckva-cai.icp0.io
+Try the deployed demo here: https://guidq-3qaaa-aaaal-qiteq-cai.icp0.io
 
-### [ic-use-siwe-identity](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic-use-siwe-identity)
+### [ic-use-siws-identity](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic-use-siws-identity)
 
 React hook and context provider for easy frontend integration with SIWS enabled Internet Computer canisters.
 
