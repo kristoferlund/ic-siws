@@ -1,6 +1,6 @@
 [package]
 name = "ic_siws_provider"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 authors = ["Kristofer Lund <kristofer@kristoferlund.se>"]
 description = "Using the pre built ic_siws_provider canister is the easiest way to integrate Solana wallet authentication into an Internet Computer (ICP) application."
@@ -15,7 +15,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 candid = "0.9.11"
-ic-cdk = "0.11.3"
+ic-cdk = "0.11.6"
 ic_siws = { path = "../ic_siws" }
 ic-stable-structures = "0.6.0"
 ic-certified-map = "0.4.0"

@@ -1539,9 +1539,9 @@ dependencies = [
 
 [[package]]
 name = "ic-cdk"
-version = "0.11.3"
+version = "0.11.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c126ac20219abff15c3441282e9da6aa7244319d5a4a42c7260667237e790712"
+checksum = "87c1f061668c9d4382f92e1586396efac2fec617811af5c4aebc5191c444f2fd"
 dependencies = [
  "candid",
  "ic-cdk-macros 0.8.1",
@@ -1585,7 +1585,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "96fa62243d3a412ceae88d6ad213614769e8b0bbcaeb98abb2e7985074257356"
 dependencies = [
  "futures",
- "ic-cdk 0.11.3",
+ "ic-cdk 0.11.6",
  "ic0 0.21.1",
  "serde",
  "serde_bytes",
@@ -1673,7 +1673,7 @@ checksum = "1762deb6f7c8d8c2bdee4b6c5a47b60195b74e9b5280faa5ba29692f8e17429c"
 
 [[package]]
 name = "ic_siws"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "bs58 0.5.1",
  "candid",
@@ -1681,7 +1681,7 @@ dependencies = [
  "getrandom 0.2.11",
  "hex",
  "hex-literal",
- "ic-cdk 0.11.3",
+ "ic-cdk 0.11.6",
  "ic-cdk-timers",
  "ic-certified-map",
  "rand 0.8.5",
@@ -1701,13 +1701,13 @@ dependencies = [
 
 [[package]]
 name = "ic_siws_provider"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "bs58 0.5.1",
  "candid",
  "hex",
  "ic-agent",
- "ic-cdk 0.11.3",
+ "ic-cdk 0.11.6",
  "ic-certified-map",
  "ic-stable-structures",
  "ic_siws",
@@ -2117,6 +2117,12 @@ dependencies = [
  "num-traits",
  "serde",
 ]
+
+[[package]]
+name = "num-conv"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "51d515d32fb182ee37cda2ccdcb92950d6a3c2893aa280e540671c2cd0f3b1d9"
 
 [[package]]
 name = "num-derive"
@@ -3420,7 +3426,7 @@ name = "test_canister"
 version = "0.1.0"
 dependencies = [
  "candid",
- "ic-cdk 0.11.3",
+ "ic-cdk 0.11.6",
 ]
 
 [[package]]
@@ -3455,12 +3461,13 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.31"
+version = "0.3.36"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f657ba42c3f86e7680e53c8cd3af8abbe56b5491790b46e22e19c0d57463583e"
+checksum = "5dfd88e563464686c916c7e46e623e520ddc6d79fa6641390f2e3fa86e83e885"
 dependencies = [
  "deranged",
  "itoa",
+ "num-conv",
  "powerfmt",
  "serde",
  "time-core",
@@ -3475,10 +3482,11 @@ checksum = "ef927ca75afb808a4d64dd374f00a2adf8d0fcff8e7b184af886c3c87ec4a3f3"
 
 [[package]]
 name = "time-macros"
-version = "0.2.16"
+version = "0.2.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26197e33420244aeb70c3e8c78376ca46571bc4e701e4791c2cd9f57dcb3a43f"
+checksum = "3f252a68540fde3a3877aeea552b832b40ab9a69e318efd078774a01ddee1ccf"
 dependencies = [
+ "num-conv",
  "time-core",
 ]
 
