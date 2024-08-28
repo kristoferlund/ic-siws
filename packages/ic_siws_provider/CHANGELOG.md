@@ -6,8 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.0.2] - 2024-08-28
+
+### Changed
+
+- Updated dependencies: ic-cdk
+
 ## [0.0.1] - 2024-04-03
 
 ### Added
 
-- First release. `ic_siws` is an adaption of the [ic-siwe](https://github.com/kristoferlund/ic-siwe) project for use with Solana. 
+- First release. `ic_siws` is an adaption of the [ic-siwe](https://github.com/kristoferlund/ic-siwe) project for use with Solana.

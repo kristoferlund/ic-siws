@@ -1,6 +1,6 @@
 [package]
 name = "ic_siws"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 authors = ["Kristofer Lund <kristofer@kristoferlund.se>"]
 description = "Integrate Solana wallet-based authentication (SIWS) with applications on the Internet Computer (ICP) platform."
@@ -17,11 +17,11 @@ serde_bytes = "0.11"
 serde_cbor = "0.11"
 candid = "0.9.11"
 hex = "0.4.3"
-ic-cdk = "0.11.3"
+ic-cdk = "0.11.6"
 ic-cdk-timers = { version = "0.5.1", optional = true }
 ic-certified-map = "0.4.0"
 url = "2.4.1"
-time = { version = "0.3.30", features = ["formatting"] }
+time = { version = "0.3.36", features = ["formatting"] }
 rand_chacha = { version = "0.3.1", optional = true }
 getrandom = { version = "0.2.10", features = ["custom"] }
 sha2 = "0.9.1"
