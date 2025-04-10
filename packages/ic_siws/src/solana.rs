@@ -1,5 +1,5 @@
 use {
-    ed25519_dalek::{PublicKey, Signature},
+    ed25519_dalek::{Signature, VerifyingKey},
     serde::Serialize,
     std::{
         convert::{Infallible, TryFrom},
@@ -160,10 +160,10 @@ pub fn verify_sol_signature(
     pubkey: &SolPubkey,
 ) -> Result<(), SolError> {
     // Create a PublicKey from the Solana public key
-    let pubkey = PublicKey::from_bytes(&pubkey.0).map_err(|_| SolError::InvalidPubkey)?;
+    let pubkey = VerifyingKey::from_bytes(&pubkey.0).map_err(|_| SolError::InvalidPubkey)?;
 
     // Create a Signature from the Solana signature
-    let signature = Signature::from_bytes(&signature.0).map_err(|_| SolError::InvalidSignature)?;
+    let signature = Signature::from_bytes(&signature.0);
 
     // Verify the signature
     pubkey
