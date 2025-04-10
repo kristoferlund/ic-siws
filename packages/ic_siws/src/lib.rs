@@ -250,11 +250,11 @@ thread_local! {
     // The random number generator is used to generate nonces for SIWS messages. This feature is
     // optional and can be enabled by setting the `nonce` feature flag.
     #[cfg(feature = "nonce")]
-    static RNG: RefCell<Option<ChaCha20Rng>> = RefCell::new(None);
+    static RNG: RefCell<Option<ChaCha20Rng>> = const { RefCell::new(None) };
 
     // The settings control the behavior of the SIWS library. The settings must be initialized
     // before any other library functions are called.
-    static SETTINGS: RefCell<Option<Settings>> = RefCell::new(None);
+    static SETTINGS: RefCell<Option<Settings>> = const { RefCell::new(None) };
 
     // SIWS messages are stored in global state during the login process. The key is the
     // Solana address as a byte array and the value is the SIWS message. After a successful

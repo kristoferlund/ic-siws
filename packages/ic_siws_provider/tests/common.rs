@@ -45,6 +45,7 @@ pub const SESSION_KEY: &[u8] = &[
     92, 98, 163, 114, 182, 117, 181, 51, 15, 219, 197, 104, 55, 123, 245, 74, 181, 35, 181, 171,
     196,
 ]; // DER encoded session key
+pub const NONCE: &str = "nonce123";
 
 pub fn valid_settings(canister_id: Principal, targets: Option<Vec<Principal>>) -> SettingsInput {
     // If specific targets have been listed, add the canister id of this canister to the list of targets.
@@ -195,14 +196,21 @@ pub fn full_login(
     targets: Option<Vec<Principal>>,
 ) -> (String, DelegatedIdentity) {
     let (wallet, address) = create_wallet();
-    let (signature, _) = prepare_login_and_sign_message(ic, ic_siws_provider_canister, &wallet);
+    let (signature, message) =
+        prepare_login_and_sign_message(ic, ic_siws_provider_canister, &wallet);
 
     // Create a session identity
     let session_identity = create_session_identity();
     let session_pubkey = session_identity.public_key().unwrap();
 
     // Login
-    let login_args = encode_args((signature, address.clone(), session_pubkey.clone())).unwrap();
+    let login_args = encode_args((
+        signature,
+        address.clone(),
+        session_pubkey.clone(),
+        message.nonce.clone(),
+    ))
+    .unwrap();
     let login_response: LoginDetails = update(
         ic,
         Principal::anonymous(),

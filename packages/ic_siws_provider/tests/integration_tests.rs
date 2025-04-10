@@ -3,12 +3,13 @@ mod common;
 use candid::{encode_args, encode_one, Principal};
 use common::{
     create_canister, create_session_identity, create_wallet, full_login, init, query, update,
-    valid_settings, RuntimeFeature, SESSION_KEY,
+    valid_settings, RuntimeFeature, NONCE, SESSION_KEY,
 };
 use ic_agent::Identity;
 use ic_siws::{delegation::SignedDelegation, login::LoginDetails, siws::SiwsMessage};
 use pocket_ic::PocketIc;
 use serde_bytes::ByteBuf;
+use solana_sdk::message;
 use std::time::Duration;
 
 use crate::common::{prepare_login_and_sign_message, SettingsInput, VALID_PUBKEY};
@@ -159,7 +160,7 @@ fn test_login_signature_too_short() {
     let ic = PocketIc::new();
     let (ic_siws_provider_canister, _) = init(&ic, None);
     let signature = "4odadvBKw1"; // Too short
-    let args = encode_args((signature, VALID_PUBKEY, SESSION_KEY)).unwrap();
+    let args = encode_args((signature, VALID_PUBKEY, SESSION_KEY, NONCE)).unwrap();
     let response: Result<LoginDetails, String> = update(
         &ic,
         Principal::anonymous(),
@@ -175,7 +176,7 @@ fn test_login_signature_too_long() {
     let ic = PocketIc::new();
     let (ic_siws_provider_canister, _) = init(&ic, None);
     let signature = "4odadvBKw14odadvBKw14odadvBKw14odadvBKw14odadvBKw14odadvBKw14odadvBKw14odadvBKw14odadvBKw14odadvBKw14odadvBKw14odadvBKw14odadvBKw1"; // Too long
-    let args = encode_args((signature, VALID_PUBKEY, SESSION_KEY)).unwrap();
+    let args = encode_args((signature, VALID_PUBKEY, SESSION_KEY, NONCE)).unwrap();
     let response: Result<LoginDetails, String> = update(
         &ic,
         Principal::anonymous(),
@@ -191,7 +192,7 @@ fn test_incorrect_signature_format() {
     let ic = PocketIc::new();
     let (ic_siws_provider_canister, _) = init(&ic, None);
     let signature = "INVALID SIGNATURE FORMAT";
-    let args = encode_args((signature, VALID_PUBKEY, SESSION_KEY)).unwrap();
+    let args = encode_args((signature, VALID_PUBKEY, SESSION_KEY, NONCE)).unwrap();
     let response: Result<LoginDetails, String> = update(
         &ic,
         Principal::anonymous(),
@@ -212,7 +213,7 @@ fn test_sign_in_message_expired() {
 
     ic.advance_time(Duration::from_secs(10));
 
-    let args = encode_args((signature, pubkey, SESSION_KEY)).unwrap();
+    let args = encode_args((signature, pubkey, SESSION_KEY, NONCE)).unwrap();
     let response: Result<LoginDetails, String> = update(
         &ic,
         Principal::anonymous(),
@@ -230,7 +231,7 @@ fn test_sign_in_address_mismatch() {
     let (ic_siws_provider_canister, _) = init(&ic, None);
     let (wallet, _) = create_wallet();
     let (signature, _) = prepare_login_and_sign_message(&ic, ic_siws_provider_canister, &wallet);
-    let args = encode_args((signature, VALID_PUBKEY, SESSION_KEY)).unwrap(); // Wrong pubkey
+    let args = encode_args((signature, VALID_PUBKEY, SESSION_KEY, NONCE)).unwrap(); // Wrong pubkey
     let response: Result<LoginDetails, String> = update(
         &ic,
         Principal::anonymous(),
@@ -247,10 +248,16 @@ fn test_sign_in_signature_manipulated() {
     let ic = PocketIc::new();
     let (ic_siws_provider_canister, _) = init(&ic, None);
     let (wallet, pubkey) = create_wallet();
-    let (_, _) = prepare_login_and_sign_message(&ic, ic_siws_provider_canister, &wallet);
+    let (_, message) = prepare_login_and_sign_message(&ic, ic_siws_provider_canister, &wallet);
     let manipulated_signature =
         "5TgJLdKQZ8UjBZLbVjHHQ9kZigxmAgDKqGdZKdJzF8iMWri93N4d2Q7RfQJHReAqyQzSJf9B4MeqGTPJkH6RcW72";
-    let args = encode_args((manipulated_signature, pubkey, SESSION_KEY)).unwrap();
+    let args = encode_args((
+        manipulated_signature,
+        pubkey,
+        SESSION_KEY,
+        message.nonce.clone(),
+    ))
+    .unwrap();
     let response: Result<LoginDetails, String> = update(
         &ic,
         Principal::anonymous(),
@@ -266,8 +273,9 @@ fn test_sign_in_ok() {
     let ic = PocketIc::new();
     let (ic_siws_provider_canister, _) = init(&ic, None);
     let (wallet, pubkey) = create_wallet();
-    let (signature, _) = prepare_login_and_sign_message(&ic, ic_siws_provider_canister, &wallet);
-    let args = encode_args((signature, pubkey, SESSION_KEY)).unwrap();
+    let (signature, message) =
+        prepare_login_and_sign_message(&ic, ic_siws_provider_canister, &wallet);
+    let args = encode_args((signature, pubkey, SESSION_KEY, message.nonce.clone())).unwrap();
     let response: Result<LoginDetails, String> = update(
         &ic,
         Principal::anonymous(),
@@ -285,8 +293,9 @@ fn test_sign_in_replay_attack() {
     let ic = PocketIc::new();
     let (ic_siws_provider_canister, _) = init(&ic, None);
     let (wallet, pubkey) = create_wallet();
-    let (signature, _) = prepare_login_and_sign_message(&ic, ic_siws_provider_canister, &wallet);
-    let args = encode_args((signature, pubkey, SESSION_KEY)).unwrap();
+    let (signature, message) =
+        prepare_login_and_sign_message(&ic, ic_siws_provider_canister, &wallet);
+    let args = encode_args((signature, pubkey, SESSION_KEY, message.nonce.clone())).unwrap();
     let response: Result<LoginDetails, String> = update(
         &ic,
         Principal::anonymous(),
@@ -321,12 +330,19 @@ fn test_sign_in_siws_get_delegation_timeout() {
 
     // Create wallet and session identity
     let (wallet1, pubkey1) = create_wallet();
-    let (signature, _) = prepare_login_and_sign_message(&ic, ic_siws_provider_canister, &wallet1);
+    let (signature, message) =
+        prepare_login_and_sign_message(&ic, ic_siws_provider_canister, &wallet1);
     let session_identity = create_session_identity();
     let session_pubkey = session_identity.public_key().unwrap();
 
     // Login
-    let login_args = encode_args((signature, pubkey1.clone(), session_pubkey.clone())).unwrap();
+    let login_args = encode_args((
+        signature,
+        pubkey1.clone(),
+        session_pubkey.clone(),
+        message.nonce.clone(),
+    ))
+    .unwrap();
     let login_response: LoginDetails = update(
         &ic,
         Principal::anonymous(),
@@ -342,12 +358,19 @@ fn test_sign_in_siws_get_delegation_timeout() {
 
     // Create another wallet and session identity
     let (wallet2, pubkey2) = create_wallet();
-    let (signature2, _) = prepare_login_and_sign_message(&ic, ic_siws_provider_canister, &wallet2);
+    let (signature2, message) =
+        prepare_login_and_sign_message(&ic, ic_siws_provider_canister, &wallet2);
     let session_identity2 = create_session_identity();
     let session_pubkey2 = session_identity2.public_key().unwrap();
 
     // Login pubkey 2, this should cause the delegation signature for pubkey 1 to be pruned
-    let login_args2 = encode_args((signature2, pubkey2.clone(), session_pubkey2.clone())).unwrap();
+    let login_args2 = encode_args((
+        signature2,
+        pubkey2.clone(),
+        session_pubkey2.clone(),
+        message.nonce.clone(),
+    ))
+    .unwrap();
     let _: LoginDetails = update(
         &ic,
         Principal::anonymous(),

@@ -18,6 +18,7 @@ use crate::{update_root_hash, ADDRESS_PRINCIPAL, PRINCIPAL_ADDRESS, SETTINGS, ST
 /// * `signature` (String): The signature of the SIWS message.
 /// * `address` (String): The Solana address of the user.
 /// * `session_key` (ByteBuf): A unique key that identifies the session.
+/// * `nonce` (String): The nonce generated during the `prepare_login` call.
 ///
 /// # Returns
 /// * `Ok(LoginOkResponse)`: Contains the user canister public key and other login response data if the login is successful.
@@ -27,6 +28,7 @@ fn siws_login(
     signature: String,
     pubkey: String,
     session_key: ByteBuf,
+    nonce: String,
 ) -> Result<LoginDetails, String> {
     STATE.with(|state| {
         let signature_map = &mut *state.signature_map.borrow_mut();
@@ -43,6 +45,7 @@ fn siws_login(
             session_key,
             &mut *signature_map,
             &ic_cdk::api::id(),
+            &nonce,
         )
         .map_err(|e| e.to_string())?;
 
