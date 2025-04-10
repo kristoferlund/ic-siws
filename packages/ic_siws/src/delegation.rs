@@ -1,19 +1,17 @@
-use std::{collections::HashMap, fmt};
-
 use super::hash::{self, Value};
 use crate::{
     settings::{RuntimeFeature, Settings},
     signature_map::SignatureMap,
     solana::SolPubkey,
+    time::get_current_time,
     with_settings,
 };
-
-use ic_certified_map::{Hash, HashTree};
-use serde_bytes::ByteBuf;
-
 use candid::{CandidType, Principal};
+use ic_certified_map::{Hash, HashTree};
 use serde::{Deserialize, Serialize};
+use serde_bytes::ByteBuf;
 use simple_asn1::{from_der, oid, ASN1Block, ASN1EncodeErr};
+use std::{collections::HashMap, fmt};
 
 #[derive(Debug)]
 pub enum DelegationError {
@@ -22,6 +20,7 @@ pub enum DelegationError {
     SerializationError(String),
     InvalidSessionKey(String),
     InvalidExpiration(String),
+    SignatureExpired,
 }
 
 impl fmt::Display for DelegationError {
@@ -37,6 +36,7 @@ impl fmt::Display for DelegationError {
             DelegationError::SerializationError(e) => write!(f, "Serialization error: {}", e),
             DelegationError::InvalidSessionKey(e) => write!(f, "Invalid session key: {}", e),
             DelegationError::InvalidExpiration(e) => write!(f, "Invalid expiration: {}", e),
+            DelegationError::SignatureExpired => write!(f, "Signature expired"),
         }
     }
 }
@@ -141,8 +141,14 @@ pub fn witness(
     seed: Hash,
     delegation_hash: Hash,
 ) -> Result<HashTree, DelegationError> {
+    let seed_hash = hash::hash_bytes(seed);
+
+    if signature_map.is_expired(get_current_time(), seed_hash, delegation_hash) {
+        return Err(DelegationError::SignatureExpired);
+    }
+
     let witness = signature_map
-        .witness(hash::hash_bytes(seed), delegation_hash)
+        .witness(seed_hash, delegation_hash)
         .ok_or(DelegationError::SignatureNotFound)?;
 
     let witness_hash = witness.reconstruct();

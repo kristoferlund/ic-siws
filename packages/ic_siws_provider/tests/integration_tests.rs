@@ -9,7 +9,6 @@ use ic_agent::Identity;
 use ic_siws::{delegation::SignedDelegation, login::LoginDetails, siws::SiwsMessage};
 use pocket_ic::PocketIc;
 use serde_bytes::ByteBuf;
-use solana_sdk::message;
 use std::time::Duration;
 
 use crate::common::{prepare_login_and_sign_message, SettingsInput, VALID_PUBKEY};
