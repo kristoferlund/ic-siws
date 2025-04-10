@@ -158,7 +158,7 @@ pub fn verify_sol_signature(
     message: &str,
     signature: &SolSignature,
     pubkey: &SolPubkey,
-) -> Result<bool, SolError> {
+) -> Result<(), SolError> {
     // Create a PublicKey from the Solana public key
     let pubkey = PublicKey::from_bytes(&pubkey.0).map_err(|_| SolError::InvalidPubkey)?;
 
@@ -168,6 +168,6 @@ pub fn verify_sol_signature(
     // Verify the signature
     pubkey
         .verify_strict(message.as_bytes(), &signature)
-        .map(|_| true) // If verification is successful, map to true
+        .map(|_| ()) // If verification is successful, return Ok(())
         .map_err(|_| SolError::VerificationFailure) // Handle any verification failure
 }

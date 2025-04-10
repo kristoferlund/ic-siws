@@ -134,12 +134,13 @@ pub fn login(
         let message_string: String = message.clone().into();
 
         // Verify the supplied signature and public key against the stored SIWS message.
-        verify_sol_signature(&message_string, signature, address)
-            .map_err(LoginError::SignatureError)?;
+        let verification_result = verify_sol_signature(&message_string, signature, address);
 
-        // At this point, the signature has been verified and the SIWS message has been used. Remove
-        // the SIWS message from the state.
+        // Ensure the SIWS message is removed from the state both on success and on failure.
         siws_messages.remove(address);
+
+        // Handle the result of the signature verification.
+        verification_result?;
 
         // The delegation is valid for the duration of the session as defined in the settings.
         let expiration = with_settings!(|settings: &Settings| {
