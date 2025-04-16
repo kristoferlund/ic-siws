@@ -1,10 +1,11 @@
 import { DelegationChain, DelegationIdentity } from "@dfinity/identity";
+import type { PublicKey } from "@solana/web3.js";
 
 export type PrepareLoginStatus = "error" | "preparing" | "success" | "idle";
 export type LoginStatus = "error" | "logging-in" | "success" | "idle";
 export type SignMessageStatus = "error" | "idle" | "pending" | "success";
 
-export type SiweIdentityContextType = {
+export type SiwsIdentityContextType = {
   /** Is set to `true` on mount until a stored identity is loaded from local storage or
    * none is found. */
   isInitializing: boolean;
@@ -69,7 +70,7 @@ export type SiweIdentityContextType = {
   /** The Ethereum address associated with current identity. This address is not necessarily
    * the same as the address of the currently connected wallet - on wallet change, the addresses
    * will differ. */
-  identityAddress?: string;
+  identityPublicKey?: PublicKey;
 
   /** Clears the identity from the state and local storage. Effectively "logs the user out". */
   clear: () => void;

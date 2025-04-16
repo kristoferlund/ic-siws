@@ -18,19 +18,13 @@ export interface LoginDetails {
 }
 export type LoginResponse = { Ok: LoginDetails } | { Err: string };
 export type Nonce = string;
-export interface PrepareLoginOkResponse {
-  nonce: string;
-  siwe_message: SiweMessage;
-}
-export type PrepareLoginResponse =
-  | { Ok: PrepareLoginOkResponse }
-  | { Err: string };
+export type PrepareLoginResponse = { Ok: SiwsMessage } | { Err: string };
 export type Principal = Uint8Array | number[];
 export type PublicKey = Uint8Array | number[];
 export type RuntimeFeature =
   | { IncludeUriInSeed: null }
-  | { DisableEthToPrincipalMapping: null }
-  | { DisablePrincipalToEthMapping: null };
+  | { DisablePrincipalToSolMapping: null }
+  | { DisableSolToPrincipalMapping: null };
 export type SessionKey = PublicKey;
 export interface SettingsInput {
   uri: string;
@@ -41,29 +35,39 @@ export interface SettingsInput {
   salt: string;
   session_expires_in: [] | [bigint];
   targets: [] | [Array<string>];
-  chain_id: [] | [bigint];
+  chain_id: [] | [string];
   sign_in_expires_in: [] | [bigint];
 }
 export interface SignedDelegation {
   signature: Uint8Array | number[];
   delegation: Delegation;
 }
-export type SiweMessage = string;
-export type SiweSignature = string;
+export interface SiwsMessage {
+  uri: string;
+  issued_at: bigint;
+  domain: string;
+  statement: string;
+  version: number;
+  chain_id: string;
+  address: Address;
+  nonce: string;
+  expiration_time: bigint;
+}
+export type SiwsSignature = string;
 export type Timestamp = bigint;
 export interface _SERVICE {
   get_address: ActorMethod<[Principal], GetAddressResponse>;
   get_caller_address: ActorMethod<[], GetAddressResponse>;
   get_principal: ActorMethod<[Address], GetPrincipalResponse>;
-  siwe_get_delegation: ActorMethod<
+  siws_get_delegation: ActorMethod<
     [Address, SessionKey, Timestamp],
     GetDelegationResponse
   >;
-  siwe_login: ActorMethod<
-    [SiweSignature, Address, SessionKey, Nonce],
+  siws_login: ActorMethod<
+    [SiwsSignature, Address, SessionKey, Nonce],
     LoginResponse
   >;
-  siwe_prepare_login: ActorMethod<[Address], PrepareLoginResponse>;
+  siws_prepare_login: ActorMethod<[Address], PrepareLoginResponse>;
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

@@ -1,8 +1,8 @@
 export const idlFactory = ({ IDL }) => {
   const RuntimeFeature = IDL.Variant({
     IncludeUriInSeed: IDL.Null,
-    DisableEthToPrincipalMapping: IDL.Null,
-    DisablePrincipalToEthMapping: IDL.Null,
+    DisablePrincipalToSolMapping: IDL.Null,
+    DisableSolToPrincipalMapping: IDL.Null,
   });
   const SettingsInput = IDL.Record({
     uri: IDL.Text,
@@ -13,7 +13,7 @@ export const idlFactory = ({ IDL }) => {
     salt: IDL.Text,
     session_expires_in: IDL.Opt(IDL.Nat64),
     targets: IDL.Opt(IDL.Vec(IDL.Text)),
-    chain_id: IDL.Opt(IDL.Nat),
+    chain_id: IDL.Opt(IDL.Text),
     sign_in_expires_in: IDL.Opt(IDL.Nat64),
   });
   const Principal = IDL.Vec(IDL.Nat8);
@@ -39,7 +39,7 @@ export const idlFactory = ({ IDL }) => {
     Ok: SignedDelegation,
     Err: IDL.Text,
   });
-  const SiweSignature = IDL.Text;
+  const SiwsSignature = IDL.Text;
   const Nonce = IDL.Text;
   const CanisterPublicKey = PublicKey;
   const LoginDetails = IDL.Record({
@@ -47,37 +47,43 @@ export const idlFactory = ({ IDL }) => {
     expiration: Timestamp,
   });
   const LoginResponse = IDL.Variant({ Ok: LoginDetails, Err: IDL.Text });
-  const SiweMessage = IDL.Text;
-  const PrepareLoginOkResponse = IDL.Record({
+  const SiwsMessage = IDL.Record({
+    uri: IDL.Text,
+    issued_at: IDL.Nat64,
+    domain: IDL.Text,
+    statement: IDL.Text,
+    version: IDL.Nat32,
+    chain_id: IDL.Text,
+    address: Address,
     nonce: IDL.Text,
-    siwe_message: SiweMessage,
+    expiration_time: IDL.Nat64,
   });
   const PrepareLoginResponse = IDL.Variant({
-    Ok: PrepareLoginOkResponse,
+    Ok: SiwsMessage,
     Err: IDL.Text,
   });
   return IDL.Service({
     get_address: IDL.Func([Principal], [GetAddressResponse], ["query"]),
     get_caller_address: IDL.Func([], [GetAddressResponse], ["query"]),
     get_principal: IDL.Func([Address], [GetPrincipalResponse], ["query"]),
-    siwe_get_delegation: IDL.Func(
+    siws_get_delegation: IDL.Func(
       [Address, SessionKey, Timestamp],
       [GetDelegationResponse],
       ["query"],
     ),
-    siwe_login: IDL.Func(
-      [SiweSignature, Address, SessionKey, Nonce],
+    siws_login: IDL.Func(
+      [SiwsSignature, Address, SessionKey, Nonce],
       [LoginResponse],
       [],
     ),
-    siwe_prepare_login: IDL.Func([Address], [PrepareLoginResponse], []),
+    siws_prepare_login: IDL.Func([Address], [PrepareLoginResponse], []),
   });
 };
 export const init = ({ IDL }) => {
   const RuntimeFeature = IDL.Variant({
     IncludeUriInSeed: IDL.Null,
-    DisableEthToPrincipalMapping: IDL.Null,
-    DisablePrincipalToEthMapping: IDL.Null,
+    DisablePrincipalToSolMapping: IDL.Null,
+    DisableSolToPrincipalMapping: IDL.Null,
   });
   const SettingsInput = IDL.Record({
     uri: IDL.Text,
@@ -88,8 +94,7 @@ export const init = ({ IDL }) => {
     salt: IDL.Text,
     session_expires_in: IDL.Opt(IDL.Nat64),
     targets: IDL.Opt(IDL.Vec(IDL.Text)),
-    chain_id: IDL.Opt(IDL.Nat),
-    sign_in_expires_in: IDL.Opt(IDL.Nat64),
+    chain_id: IDL.Opt(IDL.Text),
   });
   return [SettingsInput];
 };

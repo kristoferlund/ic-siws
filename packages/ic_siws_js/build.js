@@ -7,11 +7,12 @@ esbuild.build({
   format: "esm",
   splitting: true,
   external: [
-    "viem",
     "@dfinity/agent",
     "@dfinity/candid",
     "@dfinity/identity",
     "@dfinity/principal",
+    "@solana/wallet-adapter-base",
+    "@solana/web3.js",
   ],
   plugins: [],
 });
@@ -23,14 +24,14 @@ esbuild.build({
   format: "esm",
   splitting: true,
   external: [
-    "react",
-    "react-dom",
-    "viem",
-    "wagmi",
     "@dfinity/agent",
     "@dfinity/candid",
     "@dfinity/identity",
     "@dfinity/principal",
+    "@solana/wallet-adapter-base",
+    "@solana/web3.js",
+    "react",
+    "react-dom",
   ],
 });
 
@@ -41,11 +42,12 @@ esbuild.build({
   format: "esm",
   splitting: true,
   external: [
-    "viem",
-    "vue",
     "@dfinity/agent",
     "@dfinity/candid",
     "@dfinity/identity",
     "@dfinity/principal",
+    "@solana/wallet-adapter-base",
+    "@solana/web3.js",
+    "vue",
   ],
 });

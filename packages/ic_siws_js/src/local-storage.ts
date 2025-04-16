@@ -4,12 +4,13 @@ import {
   Ed25519KeyIdentity,
 } from "@dfinity/identity";
 
-import type { SiweIdentityStorage } from "./storage.type";
+import type { SiwsIdentityStorage } from "./storage.type";
+import { PublicKey } from "@solana/web3.js";
 
-const STORAGE_KEY = "siweIdentity";
+const STORAGE_KEY = "siwsIdentity";
 
 /**
- * Loads the SIWE identity from local storage.
+ * Loads the SIWS identity from local storage.
  */
 export function loadIdentity() {
   const storedState = localStorage.getItem(STORAGE_KEY);
@@ -18,35 +19,36 @@ export function loadIdentity() {
     throw new Error("No stored identity found.");
   }
 
-  const s: SiweIdentityStorage = JSON.parse(storedState);
-  if (!s.address || !s.sessionIdentity || !s.delegationChain) {
+  const s: SiwsIdentityStorage = JSON.parse(storedState);
+  if (!s.publicKey || !s.sessionIdentity || !s.delegationChain) {
     throw new Error("Stored state is invalid.");
   }
 
+  const p = new PublicKey(s.publicKey);
   const d = DelegationChain.fromJSON(JSON.stringify(s.delegationChain));
   const i = DelegationIdentity.fromDelegation(
     Ed25519KeyIdentity.fromJSON(JSON.stringify(s.sessionIdentity)),
-    d
+    d,
   );
 
-  return [s.address, i, d] as const;
+  return [p, i, d] as const;
 }
 
 /**
- * Saves the SIWE identity to local storage.
+ * Saves the SIWS identity to local storage.
  */
 export function saveIdentity(
-  address: string,
+  publicKey: PublicKey,
   sessionIdentity: Ed25519KeyIdentity,
-  delegationChain: DelegationChain
+  delegationChain: DelegationChain,
 ) {
   localStorage.setItem(
     STORAGE_KEY,
     JSON.stringify({
-      address: address,
+      publicKey: publicKey.toBase58(),
       sessionIdentity: sessionIdentity.toJSON(),
       delegationChain: delegationChain.toJSON(),
-    })
+    }),
   );
 }
 

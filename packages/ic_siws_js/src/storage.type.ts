@@ -1,5 +1,5 @@
-export type SiweIdentityStorage = {
-  address: string;
+export type SiwsIdentityStorage = {
+  publicKey: string;
   sessionIdentity: string;
   delegationChain: string;
 };

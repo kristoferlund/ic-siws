@@ -14,20 +14,25 @@ export interface Delegation {
 export type GetDelegationResponse = { Ok: SignedDelegation } | { Err: string };
 
 export interface LoginOkResponse {
-  user_canister_pubkey: CanisterPublicKey;
   expiration: Timestamp;
+  user_canister_pubkey: CanisterPublicKey;
 }
 
 export type LoginResponse = { Ok: LoginOkResponse } | { Err: string };
 
-export interface PrepareLoginOkResponse {
+export interface SiwsMessage {
+  domain: string;
+  address: Address;
+  statement: string;
+  uri: string;
+  version: number;
+  chain_id: string;
   nonce: string;
-  siwe_message: SiweMessage;
+  issued_at: bigint;
+  expiration_time: bigint;
 }
 
-export type PrepareLoginResponse =
-  | { Ok: PrepareLoginOkResponse }
-  | { Err: string };
+export type PrepareLoginResponse = { Ok: SiwsMessage } | { Err: string };
 
 export type PublicKey = Uint8Array | number[];
 
@@ -38,21 +43,19 @@ export interface SignedDelegation {
   delegation: Delegation;
 }
 
-export type SiweMessage = string;
-
-export type SiweSignature = string;
+export type SiwsSignature = string;
 
 export type Timestamp = bigint;
 
 export type Nonce = string;
 
-export interface SIWE_IDENTITY_SERVICE {
-  siwe_prepare_login: ActorMethod<[Address], PrepareLoginResponse>;
-  siwe_login: ActorMethod<
-    [SiweSignature, Address, SessionKey, Nonce],
+export interface SIWS_IDENTITY_SERVICE {
+  siws_prepare_login: ActorMethod<[Address], PrepareLoginResponse>;
+  siws_login: ActorMethod<
+    [SiwsSignature, Address, SessionKey, Nonce],
     LoginResponse
   >;
-  siwe_get_delegation: ActorMethod<
+  siws_get_delegation: ActorMethod<
     [Address, SessionKey, Timestamp],
     GetDelegationResponse
   >;

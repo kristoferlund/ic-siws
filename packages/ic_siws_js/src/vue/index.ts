@@ -1,26 +1,30 @@
 import { provide, inject, reactive, onMounted, onUnmounted } from "vue";
-import { SiweManager, siweStateStore, type SiweIdentityContextType } from "..";
+import { SiwsManager, siwsStateStore, type SiwsIdentityContextType } from "..";
 import type { ActorConfig, HttpAgentOptions } from "@dfinity/agent";
+import type { SignInMessageSignerWalletAdapter } from "@solana/wallet-adapter-base";
 
-const SiweIdentityProvider = Symbol("SiweIdentityProvider");
+const SiwsIdentityProvider = Symbol("SiwsIdentityProvider");
 
-export function createSiweIdentityProvider({
+export function createSiwsIdentityProvider({
   canisterId,
+  adapter,
   httpAgentOptions,
   actorOptions,
 }: {
   canisterId: string;
+  adapter?: SignInMessageSignerWalletAdapter;
   httpAgentOptions?: HttpAgentOptions;
   actorOptions?: ActorConfig;
 }) {
-  const siweManager = new SiweManager(
+  const siwsManager = new SiwsManager(
     canisterId,
+    adapter,
     httpAgentOptions,
     actorOptions,
   );
 
   const state = reactive({
-    ...siweStateStore.getSnapshot().context,
+    ...siwsStateStore.getSnapshot().context,
     isPreparingLogin: false,
     isPrepareLoginError: false,
     isPrepareLoginSuccess: false,
@@ -29,13 +33,13 @@ export function createSiweIdentityProvider({
     isLoginError: false,
     isLoginSuccess: false,
     isLoginIdle: true,
-    prepareLogin: async () => await siweManager.prepareLogin(),
-    login: async () => await siweManager.login(),
-    clear: () => siweManager.clear(),
+    prepareLogin: async () => await siwsManager.prepareLogin(),
+    login: async () => await siwsManager.login(),
+    clear: () => siwsManager.clear(),
   });
 
   onMounted(() => {
-    const subscription = siweStateStore.subscribe(({ context }) => {
+    const subscription = siwsStateStore.subscribe(({ context }) => {
       const {
         isInitializing,
         prepareLoginStatus,
@@ -46,7 +50,7 @@ export function createSiweIdentityProvider({
         signMessageError,
         delegationChain,
         identity,
-        identityAddress,
+        identityPublicKey: identityAddress,
       } = context;
 
       state.isInitializing = isInitializing;
@@ -66,7 +70,7 @@ export function createSiweIdentityProvider({
       state.signMessageError = signMessageError;
       state.delegationChain = delegationChain;
       state.identity = identity;
-      state.identityAddress = identityAddress;
+      state.identityPublicKey = identityAddress;
     });
 
     onUnmounted(() => {
@@ -74,15 +78,15 @@ export function createSiweIdentityProvider({
     });
   });
 
-  provide(SiweIdentityProvider, state);
+  provide(SiwsIdentityProvider, state);
 }
 
-export function useSiwe() {
-  const context = inject<SiweIdentityContextType | undefined>(
-    SiweIdentityProvider,
+export function useSiws() {
+  const context = inject<SiwsIdentityContextType | undefined>(
+    SiwsIdentityProvider,
   );
   if (!context) {
-    throw new Error("useSiwe must be used within a SiweIdentityProvider");
+    throw new Error("useSiws must be used within a SiwsIdentityProvider");
   }
   return context;
 }
