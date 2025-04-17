@@ -1,10 +1,10 @@
-![Sign in with Ethereum for the Internet Computer](/media/header.png)
+![Sign in with Solana for the Internet Computer](/media/header.png)
 
-`ic-siwe-js` is a JS/TS support library for easy frontend integration with SIWE enabled [Internet Computer](https://internetcomputer.org) canisters. In addition to the plain JS/TS library, `ic-siwe-js` supports **Vue and React**.
+`ic-siws-js` is a JS/TS support library for easy frontend integration with SIWS enabled [Internet Computer](https://internetcomputer.org) canisters. In addition to the plain JS/TS library, `ic-siws-js` supports **Vue, React, and Svelte**.
 
-This library is part of the [ic-siwe](https://github.com/kristoferlund/ic-siwe) project that enables Ethereum wallet-based authentication for applications on the Internet Computer (ICP) platform. The goal of the project is to enhance the interoperability between Ethereum and the Internet Computer platform, enabling developers to build applications that leverage the strengths of both platforms.
+This library is part of the [ic-siwe](https://github.com/kristoferlund/ic-siwe) project that enables Ethereum and Solana wallet-based authentication for applications on the Internet Computer (ICP) platform. The goal of the project is to enhance interoperability between blockchain wallets and the Internet Computer, enabling developers to build applications that leverage the strengths of both platforms.
 
-A SIWE enabled canister is a canister that integrates the [ic_siwe](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic_siwe) library and exposes the [SIWE login interface](src/siwe-identity-service.interface.ts). The `ic_siwe` library provides a set of functions for managing Internet Computer delegate identities created using Ethereum signatures. The easiest way to integrate with `ic_siwe` is to use this library together with the [ic_siwe_provider](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic_siwe_provider) canister.
+A SIWS provider canister implements the SIWS identity service and exposes the SIWS login interface. The `ic-siws-js` library provides functions for managing Internet Computer delegate identities created via Solana signatures. The easiest way to integrate is to use this library together with the IC SIWS provider canister.
 
 
 [![version][version-image]][npm-link]
@@ -13,12 +13,12 @@ A SIWE enabled canister is a canister that integrates the [ic_siwe](https://gith
 ## Features
 
 - **Supports vanilla JS/TS**: The library can be used with plain JavaScript or TypeScript projects, including **Svelte** and **SolidJS**
-- **Supports React and Vue**: The library provides components and hooks for easy integration with React and Vue.
+- **Supports React, Vue, and Svelte**: The library provides components and hooks (or stores) for easy integration with React, Vue, and Svelte.
 - **Cached Identity**: The identity is cached in local storage and restored on page load. This allows the user to stay logged in even if the page is refreshed.
 - **Login progress**: State varibles are provided to indicate whether the user is logged in, logging in, or logged out.
-- **Wagmi Integration**: Uses [wagmi](https://wagmi.sh) for Ethereum wallet integration.
+- **Solana Wallet Adapter Integration**: Uses [@solana/wallet-adapter-base](https://github.com/solana-labs/wallet-adapter) for Solana wallet integration.
 - **Works with ic-use-actor**: Plays nicely with [ic-use-actor](https://www.npmjs.com/package/ic-use-actor) for hassle free frontend integration.
-- **Works with ic_siwe_provider**: An easy alternative to integrating with `ic_siwe` directly is using the prebuilt [ic_siwe_provider](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic_siwe_provider) canister. The provider canister can be added to your project as a dependency and used as a login provider for you project.
+- **Works with ic_siws_provider**: An easy alternative to integrating with `ic-siws` directly is using the prebuilt [ic_siws_provider](https://github.com/kristoferlund/ic-siwe/tree/main/packages/ic_siws_provider) canister. The provider canister can be added to your project as a dependency and used as a login provider for your project.
 
 ## Table of Contents
 
@@ -26,46 +26,46 @@ A SIWE enabled canister is a canister that integrates the [ic_siwe](https://gith
 - [Quick start](#quick-start)
 - [Usage with React](#usage-with-react)
 - [Usage with Vue](#usage-with-vue)
-- [SiweIdentityProvider props](#siweidentityprovider-props)
-- [useSiwe interface](#usesiwe-interface)
+- [Usage with Svelte](#usage-with-svelte)
+- [SiwsIdentityProvider props](#siwsidentityprovider-props)
+- [useSiws interface](#usesiws-interface)
 - [Contributing](#contributing)
 - [Author](#author)
 - [License](#license)
 
 ## Installation
 
-In addition to `ic-siwe-js`, these peer dependencies are required:
+In addition to `ic-siws-js`, these peer dependencies are required:
 
-- `viem`
+- `@solana/wallet-adapter-base`
+- `@solana/web3.js`
 - `@dfinity/agent`
 - `@dfinity/candid`
 - `@dfinity/identity`
 
 ```bash
-npm install ic-siwe-js viem @dfinity/agent @dfinity/candid @dfinity/identity 
+npm install ic-siws-js @solana/wallet-adapter-base @solana/web3.js @dfinity/agent @dfinity/candid @dfinity/identity
 ```
 
 ## Quick start
 
-> [!TIP]
-> For a complete example, see the [ic-siwe-vanilla-ts-demo](https://github.com/kristoferlund/ic-siwe-vanilla-ts-demo) demo project.
 
 ```ts
-import { canisterId } from "../../ic_siwe_provider/declarations/index";
-import { SiweManager, siweStateStore } from "ic-siwe-js";
+import { canisterId } from "../../ic_siws_provider/declarations/index";
+import { SiwsManager, siwsStateStore } from "ic-siws-js";
 
-// Initialize the SiweManager with the canisterId of the SIWE provider canister.
-const siwe = new SiweManager(canisterId);
+// Initialize the SiwsManager with the canisterId of the SIWS provider canister.
+const siws = new SiwsManager(canisterId);
 
 // Set up HTML elements for login and logout buttons, etc.
 // ...
 
-// Interact with the SiweManager instance to trigger the login process or to logout.
-loginButton.addEventListener("click", () => siwe.login());
-logoutButton.addEventListener("click", () => siwe.clear());
+// Interact with the SiwsManager instance to trigger the login process or to logout.
+loginButton.addEventListener("click", () => siws.login());
+logoutButton.addEventListener("click", () => siws.clear());
 
-// Listen for changes to the siweStateStore and update the UI accordingly.
-siweStateStore.subscribe((snapshot) => {
+// Listen for changes to the siwsStateStore and update the UI accordingly.
+siwsStateStore.subscribe((snapshot) => {
   const {
     prepareLoginStatus,
     prepareLoginError,
@@ -89,8 +89,7 @@ siweStateStore.subscribe((snapshot) => {
 
 ## Usage with React
 
-> [!TIP]
-> For a complete example, see the [ic-siwe-react-demo-rust](https://github.com/kristoferlund/ic-siwe-react-demo-rust) demo project.
+> Use the React submodule for complete integration examples.
 
 The React submodule comes with `SiweIdentityProvider` that makes the `SiweManager` available to all components in the app. It also provides a `useSiwe` hook that can be used to interact with the `SiweManager` instance.
 
@@ -101,60 +100,54 @@ Wrap your application's root component with `SiweIdentityProvider` to provide al
 ```jsx
 // App.tsx
 
-import { SiweIdentityProvider } from 'ic-siwe-js/react';
-import { canisterId } from "../../ic_siwe_provider/declarations/index";
+import { SiwsIdentityProvider } from 'ic-siws-js/react';
+import { canisterId } from "../../ic_siws_provider/declarations/index";
+import type { SignInMessageSignerWalletAdapter } from '@solana/wallet-adapter-base';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 function App() {
+  const wallet = useWallet() as SignInMessageSignerWalletAdapter;
   return (
-    <SiweIdentityProvider canisterId={canisterId}>
-      // ...your app components
-    </App>
+    <SiwsIdentityProvider canisterId={canisterId} adapter={wallet}>
+      {/* ...your app components */}
+    </SiwsIdentityProvider>
   );
 }
 ```
 
 ### 2. Initiate the login process
 
-The login process is initiated by calling the `login` function. This function requests a SIWE message from the backend if it has not already been loaded. The user is asked to sign the message using their Ethereum wallet and the signed message is sent to the backend for authentication. Once the authentication is complete, the user's identity is stored in local storage and the `identity` state variable is updated with the new identity.
+The login process is initiated by calling the `login` function. This function requests a SIWS message from the backend if it has not already been loaded. The user is asked to sign the message using their Solana wallet and the signed message is sent to the backend for authentication. Once the authentication is complete, the user's identity is stored in local storage and the `identity` state variable is updated with the new identity.
 
 The `loginStatus` state variable can be used to indicate the status of the login process. Errors that occur during the login process are stored in the `loginError` state variable.
 
 ```jsx
-const { isConnected } = useAccount(); // Wagmi hook
-const { login, loginStatus, prepareLoginStatus } = useSiwe();
-
-const text = loginStatus === "logging-in" ? "Signing in …" : "Sign in";
-
-const disabled =
-  loginStatus === "logging-in" ||
-  !isConnected ||
-  prepareLoginStatus !== "success";
+import { useSiws } from 'ic-siws-js/react';
+const { login, loginStatus, prepareLoginStatus } = useSiws();
 
 return (
-  <Button disabled={disabled} onClick={login}>
-    {text}
-  </Button>
+  <button disabled={loginStatus === 'logging-in'} onClick={login}>
+    {loginStatus === 'logging-in' ? 'Signing in…' : 'Sign in'}
+  </button>
 );
 ```
 
 ## Usage with Vue
 
-> [!TIP]
-> For a complete example, see the [ic-siwe-vue-demo](https://github.com/kristoferlund/ic-siwe-vue-demo) demo project.
+> Use the Vue submodule for complete integration examples.
 
-The Vue submodule comes with `SiweIdentityProvider` that makes the `SiweManager` available to all components in the app. It also provides a `useSiwe` hook that can be used to interact with the `SiweManager` instance.
+The Vue submodule comes with `SiwsIdentityProvider` that makes the `SiwsManager` available to all components in the app. It also provides a `useSiws` hook to access the SIWS identity context.
 
 ### 1. Setup the `SiweIdentityProvider` component
 
-In the `App.vue` component, initiate the `SiweIdentityProvider` with a reference to the SIWE provider canister to make it available to all child components.
+In the `App.vue` component, initiate the `SiwsIdentityProvider` with a reference to the SIWS provider canister to make it available to all child components.
 
 ```html
 <script setup lang="ts">
+import { createSiwsIdentityProvider } from "ic-siws-js/vue";
+import { canisterId } from "../../ic_siws_provider/declarations/index";
 
-import { createSiweIdentityProvider } from "ic-siwe-js/vue";
-import { canisterId } from "../../ic_siwe_provider/declarations/index";
-
-createSiweIdentityProvider({
+createSiwsIdentityProvider({
   canisterId,
 });
 
@@ -165,28 +158,68 @@ createSiweIdentityProvider({
 </template>
 ```
 
+## Usage with Svelte
+
+> [!TIP]
+> A complete Svelte example can be found in the `ic-siws-svelte-demo` repository.
+
+The Svelte submodule provides a `SiwsIdentityProvider` component and a `useSiws` store for easy integration.
+
+### 1. Setup the `SiwsIdentityProvider` Component
+
+Wrap your application in `App.svelte` with `SiwsIdentityProvider`:
+
+```svelte
+<script lang="ts">
+  import { SiwsIdentityProvider } from "ic-siws-js/svelte";
+  import { canisterId } from "../../ic_siws_provider/declarations/index";
+</script>
+
+<SiwsIdentityProvider canisterId={canisterId}>
+  <!-- Your app components -->
+</SiwsIdentityProvider>
+```
+
+### 2. Initiate the Login Process
+
+Use the `useSiws` store to access authentication state and actions:
+
+```svelte
+<script lang="ts">
+  import { useSiws } from "ic-siws-js/svelte";
+  const siws = useSiws();
+</script>
+
+<button
+  disabled={$siws.loginStatus === "logging-in"}
+  on:click={$siws.login}
+>
+  { $siws.loginStatus === "logging-in" ? "Signing in…" : "Login" }
+</button>
+```
+
 ### 2. Initiate the login process
 
-The login process is initiated by calling the `login` function. This function requests a SIWE message from the backend if it has not already been loaded. The user is asked to sign the message using their Ethereum wallet and the signed message is sent to the backend for authentication. Once the authentication is complete, the user's identity is stored in local storage and the `identity` state variable is updated with the new identity.
+The login process is initiated by calling the `login` function. This function requests a SIWS message from the backend if it has not already been loaded. The user is asked to sign the message using their Solana wallet and the signed message is sent to the backend for authentication. Once the authentication is complete, the user's identity is stored in local storage and the `identity` state variable is updated with the new identity.
 
 The `loginStatus` state variable can be used to indicate the status of the login process. Errors that occur during the login process are stored in the `loginError` state variable.
 
 ```html
 
 <script setup lang="ts">
-import { useSiwe } from "ic-siwe-js/vue";
+import { useSiws } from "ic-siws-js/vue";
 
-const siwe = useSiwe();
+const siws = useSiws();
 
 </script>
 
 <template>
   <div>
-    <button @click="siwe.login">
+    <button @click="siws.login">
       Login
     </button>
 
-    <button @click="siwe.clear">
+    <button @click="siws.clear">
       Logout
     </button>
   </div>
@@ -195,30 +228,22 @@ const siwe = useSiwe();
 
 ## SiweIdentityProvider props
 
-```ts
-{
-  /** The unique identifier of the canister on the Internet Computer network. This ID is used to establish a connection to the canister. */
-  canisterId: string;
+The `SiwsIdentityProvider` component (for React and Vue) or `SiwsIdentityProvider.svelte` component (for Svelte) accepts the following options:
 
-  /** Configuration options for the HTTP agent used to communicate with the Internet Computer network. */
-  httpAgentOptions?: HttpAgentOptions;
+- `canisterId: string` — The unique identifier of the SIWS provider canister on the Internet Computer network.
+- `adapter?: SignInMessageSignerWalletAdapter` — Optional Solana wallet adapter from `@solana/wallet-adapter-base`.
+- `httpAgentOptions?: HttpAgentOptions` — Optional HTTP agent configuration for Internet Computer communication.
+- `actorOptions?: ActorConfig` — Optional actor configuration options.
+- `children: ReactNode` — (React only) Child components to wrap. In Svelte and Vue, use the default slot or provided hook respectively.
 
-  /** Configuration options for the actor. These options are passed to the actor upon its creation. */
-  actorOptions?: ActorConfig;
-
-  /** The child components that the SiweIdentityProvider will wrap. This allows any child component to access the authentication context provided by the SiweIdentityProvider. */
-  children: ReactNode;
-}
-```
-
-## useSiwe interface
+## useSiws interface
 
 ```ts
 export type PrepareLoginStatus = "error" | "preparing" | "success" | "idle";
 export type LoginStatus = "error" | "logging-in" | "success" | "idle";
 export type SignMessageStatus = "error" | "idle" | "pending" | "success";
 
-export type SiweIdentityContextType = {
+export type SiwsIdentityContextType = {
   /** Is set to `true` on mount until a stored identity is loaded from local storage or
    * none is found. */
   isInitializing: boolean;
@@ -305,6 +330,6 @@ Contributions are welcome. Please submit your pull requests or open issues to pr
 
 This project is licensed under the MIT License. See the LICENSE file for more details.
 
-[version-image]: https://img.shields.io/npm/v/ic-siwe-js
-[dl-image]: https://img.shields.io/npm/dw/ic-siwe-js
-[npm-link]: https://www.npmjs.com/package/ic-siwe-js
+[version-image]: https://img.shields.io/npm/v/ic-siws-js
+[dl-image]: https://img.shields.io/npm/dw/ic-siws-js
+[npm-link]: https://www.npmjs.com/package/ic-siws-js

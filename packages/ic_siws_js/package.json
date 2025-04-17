@@ -24,7 +24,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./vue": "./dist/vue/index.js",
-    "./react": "./dist/react/index.js"
+    "./react": "./dist/react/index.js",
+    "./svelte": "./dist/svelte/index.js"
   },
   "scripts": {
     "build": "rm -rf dist && node build.js && tsc --emitDeclarationOnly",
@@ -45,6 +46,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "vue": "^3.5.13"
+  ,  "svelte": "^3.0.0"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -56,6 +58,7 @@
     "vue": {
       "optional": true
     }
+    ,"svelte": { "optional": true }
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

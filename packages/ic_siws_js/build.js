@@ -1,4 +1,10 @@
 import esbuild from "esbuild";
+// Node __dirname support for ES modules
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 esbuild.build({
   entryPoints: ["./src/index.ts"],
@@ -51,3 +57,37 @@ esbuild.build({
     "vue",
   ],
 });
+
+// Build Svelte sub-library
+esbuild.build({
+  entryPoints: ["./src/svelte/index.ts"],
+  bundle: true,
+  outdir: "dist/svelte",
+  format: "esm",
+  splitting: true,
+  external: [
+    "@dfinity/agent",
+    "@dfinity/candid",
+    "@dfinity/identity",
+    "@dfinity/principal",
+    "@solana/wallet-adapter-base",
+    "@solana/web3.js",
+    "svelte",
+    "svelte/store",
+    "*.svelte"
+  ],
+});
+
+// Copy Svelte component for consumers
+const svelteSrc = path.resolve(__dirname, 'src', 'svelte');
+const svelteDist = path.resolve(__dirname, 'dist', 'svelte');
+fs.mkdirSync(svelteDist, { recursive: true });
+fs.copyFileSync(
+  path.join(svelteSrc, 'SiwsIdentityProvider.svelte'),
+  path.join(svelteDist, 'SiwsIdentityProvider.svelte')
+);
+// Copy TypeScript shims for Svelte
+fs.copyFileSync(
+  path.join(svelteSrc, 'shims-svelte.d.ts'),
+  path.join(svelteDist, 'shims-svelte.d.ts')
+);
