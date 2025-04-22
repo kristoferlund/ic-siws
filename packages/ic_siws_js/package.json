@@ -42,11 +42,11 @@
     "@dfinity/identity": ">=2.1.2",
     "@dfinity/principal": ">=2.1.2",
     "@solana/wallet-adapter-base": ">=0.9.23",
-    "@solana/web3.js": "^1.77.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "vue": "^3.5.13"
-  ,  "svelte": "^3.0.0"
+    "@solana/web3.js": ">=1.77.3",
+    "react": ">=18.3.1",
+    "react-dom": ">=18.3.1",
+    "vue": ">=3.5.13",
+    "svelte": ">=3.0.0"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -57,8 +57,10 @@
     },
     "vue": {
       "optional": true
+    },
+    "svelte": {
+      "optional": true
     }
-    ,"svelte": { "optional": true }
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

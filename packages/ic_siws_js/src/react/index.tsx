@@ -32,6 +32,8 @@ export function SiwsIdentityProvider({
     <SiwsContext.Provider
       value={{
         ...state,
+        setAdapter: (adapter: SignInMessageSignerWalletAdapter) =>
+          siwsManager.setAdapter(adapter),
         prepareLogin: () => siwsManager.prepareLogin(),
         isPreparingLogin: state.prepareLoginStatus === "preparing",
         isPrepareLoginError: state.prepareLoginStatus === "error",

@@ -36,6 +36,8 @@ export function createSiwsIdentityProvider({
     prepareLogin: async () => await siwsManager.prepareLogin(),
     login: async () => await siwsManager.login(),
     clear: () => siwsManager.clear(),
+    setAdapter: (adapter: SignInMessageSignerWalletAdapter) =>
+      siwsManager.setAdapter(adapter),
   });
 
   onMounted(() => {

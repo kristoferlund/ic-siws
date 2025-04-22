@@ -19,6 +19,7 @@
   function mapContext(ctx: any): SiwsIdentityContextType {
     return {
       isInitializing: ctx.isInitializing,
+      setAdapter: (adapter: SignInMessageSignerWalletAdapter) => siwsManager.setAdapter(adapter),
       prepareLogin: () => siwsManager.prepareLogin(),
       prepareLoginStatus: ctx.prepareLoginStatus,
       isPreparingLogin: ctx.prepareLoginStatus === 'preparing',
