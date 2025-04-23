@@ -1,5 +1,5 @@
 import { DelegationChain, DelegationIdentity } from "@dfinity/identity";
-import type { SignInMessageSignerWalletAdapter } from "@solana/wallet-adapter-base";
+import type { Adapter } from "@solana/wallet-adapter-base";
 import type { PublicKey } from "@solana/web3.js";
 
 export type PrepareLoginStatus = "error" | "preparing" | "success" | "idle";
@@ -11,7 +11,7 @@ export type SiwsIdentityContextType = {
    * none is found. */
   isInitializing: boolean;
 
-  setAdapter: (adapter: SignInMessageSignerWalletAdapter) => Promise<void>;
+  setAdapter: (adapter: Adapter) => Promise<void>;
 
   /** Load a SIWE message from the provider canister, to be used for login. Calling prepareLogin
    * is optional, as it will be called automatically on login if not called manually. */
