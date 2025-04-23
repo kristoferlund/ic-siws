@@ -21,7 +21,10 @@ import type {
 } from "./context.type";
 import { idlFactory } from "./ic_siws_provider.did";
 import type { SiwsMessage } from "./service.interface";
-import type { SignInMessageSignerWalletAdapter } from "@solana/wallet-adapter-base";
+import type {
+  Adapter,
+  SignInMessageSignerWalletAdapter,
+} from "@solana/wallet-adapter-base";
 import bs58 from "bs58";
 import type { PublicKey } from "@solana/web3.js";
 
@@ -71,7 +74,7 @@ export class SiwsManager {
    */
   constructor(
     public canisterId: string,
-    public adapter?: SignInMessageSignerWalletAdapter,
+    public adapter?: Adapter,
     public httpAgentOptions?: HttpAgentOptions,
     public actorOptions?: ActorConfig,
   ) {
@@ -85,7 +88,7 @@ export class SiwsManager {
       });
     } catch (e) {
       const error = normalizeError(e);
-      console.log(`IdentityManager: ${error.message}`);
+      console.log(error.message);
     }
     this.updateState({ isInitializing: false });
   }
@@ -107,7 +110,18 @@ export class SiwsManager {
   //   this.walletClient = walletClient;
   // }
 
-  public async setAdapter(adapter: SignInMessageSignerWalletAdapter) {
+  // Type guard to ensure adapter can sign SIWS messages
+  isSignInAdapter(
+    adapter: Adapter,
+  ): adapter is SignInMessageSignerWalletAdapter {
+    return "signIn" in adapter && typeof adapter.signIn === "function";
+  }
+
+  public async setAdapter(adapter: Adapter) {
+    if (!this.isSignInAdapter(adapter)) {
+      throw new Error("Adapter does not support SIWS signing.");
+    }
+
     this.adapter = adapter;
   }
 
@@ -179,6 +193,10 @@ export class SiwsManager {
         throw new Error(
           "No Solana adapter available. Call setAdapter before calling prepareLogin or include adapter in the constructor.",
         );
+      }
+
+      if (!this.isSignInAdapter(this.adapter)) {
+        throw new Error("Adapter does not support SIWS signing.");
       }
 
       if (!this.adapter.publicKey) {
