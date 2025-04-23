@@ -66,9 +66,10 @@ export const siwsStateStore = createStore({
 
 export class SiwsManager {
   /**
-   * The IdentityManager is the starting point for using the SIWS identity service. It manages the identity state and provides authentication-related functionalities.
+   * The SiwsManager is the starting point for using the SIWS identity service. It manages the identity state and provides authentication-related functionalities.
    *
-   * @param {string} canisterId - The unique identifier of the canister on the Internet Computer network. This ID is used to establish a connection to the canister.
+   * @param {string} canisterId - The canister id of the SIWS enabled canister, either the pre-built provider canister provided by ic-siws, or any canister implementing the SIWE sign in interface.
+   * @param {Adapter} adapter - Optional. The wallet adapter to use for signing SIWS messages. If not provided, `setAdapter` must be called before calling `login`.
    * @param {HttpAgentOptions} httpAgentOptions - Optional. Configuration options for the HTTP agent used to communicate with the Internet Computer network.
    * @param {ActorConfig} actorOptions - Optional. Configuration options for the actor. These options are passed to the actor upon its creation.
    */
