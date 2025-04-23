@@ -3,12 +3,12 @@
   import { readable } from 'svelte/store';
   import { SiwsManager, siwsStateStore } from '..';
   import type { ActorConfig, HttpAgentOptions } from '@dfinity/agent';
-  import type { SignInMessageSignerWalletAdapter } from '@solana/wallet-adapter-base';
+  import type { Adapter } from '@solana/wallet-adapter-base';
   import type { SiwsIdentityContextType } from '..';
   import { SiwsContextKey } from './context';
 
   export let canisterId: string;
-  export let adapter?: SignInMessageSignerWalletAdapter;
+  export let adapter?: Adapter;
   export let httpAgentOptions?: HttpAgentOptions;
   export let actorOptions?: ActorConfig;
 
@@ -19,7 +19,7 @@
   function mapContext(ctx: any): SiwsIdentityContextType {
     return {
       isInitializing: ctx.isInitializing,
-      setAdapter: (adapter: SignInMessageSignerWalletAdapter) => siwsManager.setAdapter(adapter),
+      setAdapter: (adapter: Adapter) => siwsManager.setAdapter(adapter),
       prepareLogin: () => siwsManager.prepareLogin(),
       prepareLoginStatus: ctx.prepareLoginStatus,
       isPreparingLogin: ctx.prepareLoginStatus === 'preparing',

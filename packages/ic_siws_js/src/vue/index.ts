@@ -1,7 +1,7 @@
 import { provide, inject, reactive, onMounted, onUnmounted } from "vue";
 import { SiwsManager, siwsStateStore, type SiwsIdentityContextType } from "..";
 import type { ActorConfig, HttpAgentOptions } from "@dfinity/agent";
-import type { SignInMessageSignerWalletAdapter } from "@solana/wallet-adapter-base";
+import type { Adapter } from "@solana/wallet-adapter-base";
 
 const SiwsIdentityProvider = Symbol("SiwsIdentityProvider");
 
@@ -12,7 +12,7 @@ export function createSiwsIdentityProvider({
   actorOptions,
 }: {
   canisterId: string;
-  adapter?: SignInMessageSignerWalletAdapter;
+  adapter?: Adapter;
   httpAgentOptions?: HttpAgentOptions;
   actorOptions?: ActorConfig;
 }) {
@@ -36,8 +36,7 @@ export function createSiwsIdentityProvider({
     prepareLogin: async () => await siwsManager.prepareLogin(),
     login: async () => await siwsManager.login(),
     clear: () => siwsManager.clear(),
-    setAdapter: (adapter: SignInMessageSignerWalletAdapter) =>
-      siwsManager.setAdapter(adapter),
+    setAdapter: (adapter: Adapter) => siwsManager.setAdapter(adapter),
   });
 
   onMounted(() => {

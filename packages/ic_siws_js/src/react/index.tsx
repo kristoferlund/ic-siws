@@ -2,7 +2,7 @@ import React, { createContext, useContext, useMemo } from "react";
 import { SiwsManager, siwsStateStore, type SiwsIdentityContextType } from "..";
 import type { ActorConfig, HttpAgentOptions } from "@dfinity/agent";
 import { useSelector } from "@xstate/store/react";
-import type { SignInMessageSignerWalletAdapter } from "@solana/wallet-adapter-base";
+import type { Adapter } from "@solana/wallet-adapter-base";
 
 const SiwsContext = createContext<SiwsIdentityContextType | undefined>(
   undefined,
@@ -16,7 +16,7 @@ export function SiwsIdentityProvider({
   children,
 }: {
   canisterId: string;
-  adapter?: SignInMessageSignerWalletAdapter;
+  adapter?: Adapter;
   httpAgentOptions?: HttpAgentOptions;
   actorOptions?: ActorConfig;
   children: React.ReactNode;
@@ -32,8 +32,7 @@ export function SiwsIdentityProvider({
     <SiwsContext.Provider
       value={{
         ...state,
-        setAdapter: (adapter: SignInMessageSignerWalletAdapter) =>
-          siwsManager.setAdapter(adapter),
+        setAdapter: (adapter: Adapter) => siwsManager.setAdapter(adapter),
         prepareLogin: () => siwsManager.prepareLogin(),
         isPreparingLogin: state.prepareLoginStatus === "preparing",
         isPrepareLoginError: state.prepareLoginStatus === "error",
