@@ -11,6 +11,8 @@ export type SiwsIdentityContextType = {
    * none is found. */
   isInitializing: boolean;
 
+  /** Sets the wallet adapter to be used for signing the SIWE message. This must be called
+   * before calling `login()`. Alternatively, you can pass the adapter to the SiwsManager constructor. */
   setAdapter: (adapter: Adapter) => Promise<void>;
 
   /** Load a SIWE message from the provider canister, to be used for login. Calling prepareLogin
