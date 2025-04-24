@@ -1,6 +1,6 @@
 ![Sign in with Solana for the Internet Computer](/media/header.png)
 
-`ic-siws` is a project that enables Solana wallet-based authentication for applications on the [Internet Computer](https://internetcomputer.org) (IC) platform. The goal of the project is to enhance the interoperability between Solana and the Internet Computer platform, enabling developers to build applications that leverage the strengths of both platforms.
+`ic-siws` is a project that enables Solana wallet-based authentication for applications on ICP, [The Internet Computer](https://internetcomputer.org). The goal of the project is to enhance the interoperability between Solana and the Internet Computer platform, enabling developers to build applications that leverage the strengths of both platforms.
 
 ## Also available
 

@@ -2,6 +2,6 @@
   "name": "ic-siws",
   "version": "0.0.1",
   "workspaces": [
-    "packages/ic-use-siws-identity"
+    "packages/ic_siws_js"
   ]
 }
