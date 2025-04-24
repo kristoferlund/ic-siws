@@ -1,5 +1,5 @@
 // src/svelte/siws.ts
-import { readable, type Readable } from "svelte/store";
+import { readable, type Readable, type Subscriber } from "svelte/store";
 import { SiwsManager, siwsStateStore, type SiwsIdentityContextType } from "..";
 import type { Adapter } from "@solana/wallet-adapter-base";
 import type { ActorConfig, HttpAgentOptions } from "@dfinity/agent";
@@ -51,12 +51,12 @@ function mapContext(ctx: any): SiwsIdentityContextType {
 }
 
 // The Svelte store that components will subscribe to.
-export const siws: Readable<SiwsIdentityContextType> = readable(
-  mapContext(siwsStateStore.getSnapshot().context),
-  (set) => {
-    const sub = siwsStateStore.subscribe(({ context }) => {
-      set(mapContext(context));
+export const siws: Readable<SiwsIdentityContextType> = {
+  subscribe(run: Subscriber<SiwsIdentityContextType>) {
+    run(mapContext(siwsStateStore.getSnapshot().context));
+    const unsub = siwsStateStore.subscribe(({ context }) => {
+      run(mapContext(context));
     });
-    return () => sub.unsubscribe();
+    return () => unsub.unsubscribe();
   },
-);
+};
