@@ -1,4 +1,3 @@
-
 ![Sign in with Solana for the Internet Computer](/media/header.png)
 
 `ic-siws` is a project that enables Solana wallet-based authentication for applications on the [Internet Computer](https://internetcomputer.org) (IC) platform. The goal of the project is to enhance the interoperability between Solana and the Internet Computer platform, enabling developers to build applications that leverage the strengths of both platforms.
@@ -22,55 +21,43 @@ for Ethereum-based applications.
 
 - **Prebuilt Identity Provider**: Provides a prebuilt canister that can be integrated into any Internet Computer application, independent of the application's programming language.
 
-## Usage
 
-Developers have two options to use SIWS in their IC applications:
+## How it works
 
-1. **Use the prebuilt [ic_siws_provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws_provider) canister**: This is the easiest way to integrate SIWS into an Internet Computer application. The pre-built canister is added to the project `dfx.json` and then configured to meet the needs of the application. `ic_siws_provider` can be added to any Internet Computer application, independent of the application's programming language.
+`ic-siws` integrates Solana wallet authentication into IC applications via a SIWS‑enabled canister and the `ic-siws-js` frontend support library:
 
-2. **Use the [ic_siws](https://crates.io/crates/ic_siws) library**: This allows developers full control over the SIWS integration. The `ic_siws` Rust library provides all the necessary tools for integrating SIWS into IC canisters.
+1. Frontend uses `ic-siws-js` to request a SIWS login message from the canister.  
+2. The canister generates and returns the SIWS message.  
+3. `ic-siws-js` prompts the user to sign the message with their Solana wallet.  
+4. The signed message is sent back through `ic-siws-js` to the canister.  
+5. The canister verifies the signature and issues a delegated IC identity (Principal).  
+6. The frontend uses the delegated identity for authenticated calls to other canisters.
 
-### SIWS login flow
-
-The below diagram illustrates the high-level login flow when using the `ic_siws_provider` canister.
-
-1. An ICP application requests a SIWS message from the `ic_siws_provider` canister on behalf of the user.
-
-2. The application displays the SIWS message to the user who signs it with their Solana wallet.
-
-3. The application sends the signed SIWS message to the `ic_siws_provider` canister to login the user. The canister verifies the signature and creates an identity for the user.
-
-4. The application retrieves the identity from the `ic_siws_provider` canister.
-
-5. The application can now use the identity to make authenticated calls to canisters.
 
 ![Sign in with Solana - Login flow](/media/flow.png)
 
-## Resources
+## Packages
 
-`ic-siws` consists of two main packages: the Rust support library and the prebuilt identity provider canister. The project also includes React demo applications and React hooks for easy frontend integration with SIWS enabled Internet Computer canisters.
+`ic-siws` provides three packages to enable Sign‑In with Solana in your Internet Computer application:
 
-### [ic_siws](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws)
+### 1. [ic_siws](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws) (Rust library)
+A SIWS‑enabled canister implements the interface to:
+- Generate SIWS login messages  
+- Verify Solana wallet signatures  
+- Issue delegated IC identities (Principals)  
 
-Rust library that provides the necessary tools for integrating Sign-In with Solana (SIWS) into IC canisters, allowing users to sign in using their Solana wallets.
+Integrate the `ic_siws` library directly into your canister project for full control over the SIWS flow and customization.
 
-### [ic-siws-provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws_provider)
+### 2. [ic-siws-provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws_provider) (Prebuilt canister)
+A ready‑to‑use SIWS‑enabled canister implementing the above interface out of the box.   To use:
+1. Add `ic_siws_provider` to your `dfx.json`.  
+2. Configure it to your application’s needs.  
 
-Prebuilt canister serving as a SIWS identity provider for Internet Computer canisters. `ic_siws-provider` packages the [ic_siws](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws) library and makes it available as a canister that can easily be integrated into any Internet Computer application, independent of the application's programming language.
+This is the easiest way to get SIWS up and running in any IC app.
 
-### [ic-siws-react-demo-rust](https://github.com/kristoferlund/ic-siws-react-demo-rust)
-
-React demo application that demonstrates how to integrate SIWS into an Internet Computer canister using the [ic-use-siws-identity](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic-use-siws-identity) hook and [ic-siws-provider](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws_provider) canister.
-
-Try the deployed demo here: https://guidq-3qaaa-aaaal-qiteq-cai.icp0.io
-
-### [ic-use-siws-identity](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic-use-siws-identity)
-
-React hook and context provider for easy frontend integration with SIWS enabled Internet Computer canisters.
-
-### [ic-use-actor](https://github.com/kristoferlund/ic-use-actor)
-
-React hook and context provider for managing Internet Computer (IC) actors with features like type safety and request/response interceptors. `ic-use-actor` makes interacting with Internet Computer canisters more fun!
+### 3. [ic-siws-js](https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws_js) (JavaScript/TypeScript library)
+Frontend support library for interacting with SIWS‑enabled canisters.  
+Supports vanilla JS/TS as well as Vue, React, and Svelte integrations.
 
 ## Updates
 
@@ -90,11 +77,3 @@ Contributions are welcome. Please submit your pull requests or open issues to pr
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for more details.
-
-## Future Plans
-
-The project is still in active development. Before using `ic-siws` in production, I would like to do a more formal security audit.
-
-Also, I want to integrate SIWS into more demo applications, ideally some wallet application.
-
-Most likely, there are features missing in the current implementation. If you have any ideas or requests for features, please let me know by [opening an issue](https://github.com/kristoferlund/ic-siws/issues).
