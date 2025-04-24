@@ -77,12 +77,3 @@ esbuild.build({
     "*.svelte",
   ],
 });
-
-// Copy Svelte component for consumers
-const svelteSrc = path.resolve(__dirname, "src", "svelte");
-const svelteDist = path.resolve(__dirname, "dist", "svelte");
-fs.mkdirSync(svelteDist, { recursive: true });
-fs.copyFileSync(
-  path.join(svelteSrc, "SiwsIdentityProvider.svelte"),
-  path.join(svelteDist, "SiwsIdentityProvider.svelte"),
-);
