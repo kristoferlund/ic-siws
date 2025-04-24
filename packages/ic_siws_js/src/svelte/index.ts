@@ -1,7 +1,4 @@
-/**
- * Svelte sub-library entry point for SIWS identity.
- */
-import SiwsIdentityProvider from './SiwsIdentityProvider.svelte';
-import { useSiws } from './useSiws';
+export { default as SiwsIdentityProvider } from "./SiwsIdentityProvider.svelte";
+export { useSiws } from "./useSiws";
+export { SiwsContextKey } from "./context";
 
-export { SiwsIdentityProvider, useSiws };
