@@ -119,7 +119,7 @@ impl fmt::Display for LoginError {
 ///
 /// # Returns
 /// A `Result` that, on success, contains the [LoginDetails] with session expiration and user canister
-/// public key, or an error string on failure.
+/// public key, or an error of type [`LoginError`] on failure.
 pub fn login(
     signature: &SolSignature,
     address: &SolPubkey,

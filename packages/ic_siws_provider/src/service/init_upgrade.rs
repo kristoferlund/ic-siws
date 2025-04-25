@@ -21,11 +21,11 @@ pub enum RuntimeFeature {
 /// and expiration times for sessions and sign-ins.
 #[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct SettingsInput {
-    /// The full domain, including subdomains, from where the frontend that uses SIWE is served.
+    /// The full domain, including subdomains, from where the frontend that uses SIWS is served.
     /// Example: "example.com" or "sub.example.com".
     pub domain: String,
 
-    /// The full URI, potentially including port number of the frontend that uses SIWE.
+    /// The full URI, potentially including port number of the frontend that uses SIWS.
     /// Example: "https://example.com" or "https://sub.example.com:8080".
     pub uri: String,
 
@@ -36,7 +36,7 @@ pub struct SettingsInput {
     /// The Solana chain ID for ic-siws, defaults to "mainnet". Valid values are "mainnet", "testnet", "devnet", "localnet", "solana:mainnet", "solana:testnet", "solana:devnet".
     pub chain_id: Option<String>,
 
-    // The scheme used to serve the frontend that uses SIWS. Defaults to "https".
+    /// The scheme used to serve the frontend that uses SIWS. Defaults to "https".
     pub scheme: Option<String>,
 
     /// The statement is a message or declaration, often presented to the user by the Solana wallet
@@ -52,6 +52,7 @@ pub struct SettingsInput {
     /// that the delegation is allowed for all canisters. If specified, the canister id of this canister must be in the list.
     pub targets: Option<Vec<String>>,
 
+    /// Optional runtime features that customize the behavior of the canister.
     pub runtime_features: Option<Vec<RuntimeFeature>>,
 }
 

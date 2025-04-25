@@ -33,11 +33,18 @@ for Ethereum-based applications.
 - [Contributing](#contributing)
 - [License](#license)
 
-## Integration overview
+## Demo applications
 
-See the [ic-siws-react-demo-rust](https://github.com/kristoferlund/ic-siws-react-demo-rust) for a complete example of how to integrate the `ic_siws_provider` canister into an ICP application. The easiest way to get started is to fork the demo and modify it to suit your needs.
+There are several demo applications available that showcase the integration of the `ic_siws_provider` canister with different frontend frameworks. These demos provide a practical example of how to use the canister to implement Solana wallet authentication in your ICP application.
+
+* React: [ic-siws-react-demo](https://github.com/kristoferlund/ic-siws-react-demo)
+* Vue: [ic-siws-vue-demo](https://github.com/kristoferlund/ic-siws-vue-demo)
+* Svelte: [ic-siws-svelte-demo](https://github.com/kristoferlund/ic-siws-svelte-demo)
+* Vanilla TS: [ic-siws-vanilla-ts-demo](https://github.com/kristoferlund/ic-siws-vanilla-ts-demo)
 
 The [integration tests](https://github.com/kristoferlund/ic-siws/blob/main/packages/ic_siws_provider/tests/integration_tests.rs) for the `ic_siws_provider` canister also provide a good overview of how to integrate the canister into an ICP application.
+
+## Integration overview
 
 The high-level integration flow for the `ic_siws_provider` canister is as follows:
 
@@ -60,8 +67,8 @@ The canister is pre built and ready to use. To add it to your project, simply ad
   "canisters": {
     "ic_siws_provider": {
       "type": "custom",
-      "candid": "https://github.com/kristoferlund/ic-siws/releases/download/v0.0.1/ic_siws_provider.did",
-      "wasm": "https://github.com/kristoferlund/ic-siws/releases/download/v0.0.1/ic_siws_provider.wasm.gz"
+      "candid": "https://github.com/kristoferlund/ic-siws/releases/download/v0.1.0/ic_siws_provider.did",
+      "wasm": "https://github.com/kristoferlund/ic-siws/releases/download/v0.1.0/ic_siws_provider.wasm.gz"
     },
   },
 }
@@ -77,7 +84,7 @@ dfx deploy ic_siws_provider --argument $'(
         domain = "127.0.0.1";
         uri = "http://127.0.0.1:5173";
         salt = "my secret salt";
-        chain_id = opt "mainnet"; 
+        chain_id = opt "mainnet";
         scheme = opt "http";
         statement = opt "Login to the app";
         sign_in_expires_in = opt 300000000000;       # 5 minutes
@@ -86,13 +93,14 @@ dfx deploy ic_siws_provider --argument $'(
             "'$(dfx canister id ic_siws_provider)'"; # Must be included
             "'$(dfx canister id my_app_canister)'";  # Allow identity to be used with this canister
         };
+        runtime_features = null;
     }
 )'
 ```
 > [!IMPORTANT]
-> `domain` should be set to the full domain, including subdomains, from where the frontend that uses SIWS is served. 
+> `domain` should be set to the full domain, including subdomains, from where the frontend that uses SIWS is served.
 > Example: `myapp.example.com`
-> 
+>
 > `uri` should be set to the full URI, potentially including the port number, of the frontend that uses SIWS.
 > Example: `https://myapp.example.com:8080`
 
@@ -101,40 +109,43 @@ See also additional [runtime features](#runtime-features) that can be configured
 
 ### 3. Integrate the `ic_siws_provider` into your frontend application
 
-Below example uses the [ic-use-siws-identity](https://github.com/kristoferlund/ic_siws/tree/main/packages/ic-use-siws-identity) React hook to integrate the `ic_siws_provider` into a React application.
+Below example uses the [ic-siws-js](https://github.com/kristoferlund/ic_siws/tree/main/packages/ic_siws_js) package to integrate the `ic_siws_provider` into a React application.
 
-Wrap your application's root component with `SiwsIdentityProvider` to provide all child components access to the SIWS identity context.
+Wrap your application's root component with `SiwsIdentityProvider` to provide all child components access to the SIWS identity context. The provider is configured with the wallet adapter of the user coice of wallet.
 
 ```jsx
-// App.tsx
+// SiwsProvider.tsx
+import { useWallet } from "@solana/wallet-adapter-react";
+import { SiwsIdentityProvider } from "ic-siws-js/react";
+import { canisterId } from "../../../ic_siws_provider/declarations/index";
 
-import { SiwsIdentityProvider } from 'ic-use-siws-identity';
-import { _SERVICE } from "path-to/ic_siws_provider.did";
+export default function SiwsProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // Listen for changes to the selected wallet
+  const { wallet } = useWallet();
 
-function App() {
+  // Update the SiwsIdentityProvider with the selected wallet adapter
   return (
-    <SiwsIdentityProvider<_SERVICE>
-      idlFactory={/* IDL Interface Factory */}
-      canisterId={/* Canister ID */}
-      // ...other props
-    >
-      {/* Your app components */}
-    </App>
+    <SiwsIdentityProvider canisterId={canisterId} adapter={wallet?.adapter}>
+      {children}
+    </SiwsIdentityProvider>
   );
 }
 ```
 
-### 4. Use the `useSiwsIdentity` hook
+### 4. Use the `useSiws` hook
 
-Use the `useSiwsIdentity`` hook to initiate the login process:
+Use the `useSiws` hook to initiate the login process:
 
 ```jsx
 // Component.tsx
-
-import { useSiwsIdentity } from "ic-use-siws-identity";
+import { useSiws } from "ic-siws-js/react";
 
 function MyComponent() {
-  const { login, clear, identity, ... } = useSiwsIdentity();
+  const { login, clear, identity, ... } = useSiws();
   // ...
 }
 ```
@@ -152,7 +163,7 @@ When set, the URI is included in the seed used to generate the principal. Includ
 ```bash
   runtime_features = opt vec { \
     variant { IncludeUriInSeed } \
-  }; 
+  };
 ```
 
 ### `DisableSolToPrincipalMapping`
@@ -164,7 +175,7 @@ When set, the mapping of Solana addresses to Principals is disabled. This also d
 ```bash
   runtime_features = opt vec { \
     variant { DisableSolToPrincipalMapping } \
-  }; 
+  };
 ```
 
 ### `DisablePrincipalToSolMapping`
@@ -176,12 +187,12 @@ When set, the mapping of Principals to Solana addresses is disabled. This also d
 ```bash
   runtime_features = opt vec { \
     variant { DisablePrincipalToSolMapping } \
-  }; 
+  };
 ```
 
 ## Service Interface
 
-In addition to the SIWS endpoints, required by the `useSiwsIdentity` hook, this canister also exposes endpoints to retrieve the Solana address associated with a given ICP principal and vice versa. These endpoints are useful for applications that need to map ICP Principals to Solana addresses.  
+In addition to the SIWS endpoints, required by the `useSiwsIdentity` hook, this canister also exposes endpoints to retrieve the Solana address associated with a given ICP principal and vice versa. These endpoints are useful for applications that need to map ICP Principals to Solana addresses.
 
 ### [get_address](https://github.com/kristoferlund/ic-siws/blob/main/packages/ic_siws_provider/src/service/get_address.rs)
 
@@ -216,7 +227,7 @@ In addition to the SIWS endpoints, required by the `useSiwsIdentity` hook, this 
 ### [siws_login](https://github.com/kristoferlund/ic-siws/blob/main/packages/ic_siws_provider/src/service/siws_login.rs)
 
 - **Purpose**: Verifies the signature of the SIWS message and prepares the delegation for authentication.
-- **Input**: Signature (`String`), Solana address (`String`), and session key (`ByteBuf`).
+- **Input**: Signature (`String`), Solana address (`String`), session key (`ByteBuf`), nonce (`String`).
 - **Output**:
   - `Ok(LoginDetails)`: The public key and other login response data if the login is successful.
   - `Err(String)`: An error message if the login process fails.
@@ -262,7 +273,7 @@ pub enum RuntimeFeature {
 
 ### SettingsInput
 
-Defines the settings that controls the behavior of the `ic_siws_provider` canister. 
+Defines the settings that controls the behavior of the `ic_siws_provider` canister.
 
 ```rust
 pub struct SettingsInput {
@@ -320,4 +331,3 @@ Contributions are welcome. Please submit your pull requests or open issues to pr
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for more details.
-

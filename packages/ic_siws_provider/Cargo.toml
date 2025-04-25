@@ -27,7 +27,7 @@ num-traits = "0.2.19"
 [dev-dependencies]
 hex = "0.4.3"
 ic-agent = { version = "0.40.0", default-features = false }
-pocket-ic = "7.0.0"
+pocket-ic = "8.0.0"
 rand = "0.8.5"
 ed25519-consensus = "2.1.0"
 zeroize = { version = "1.3", default-features = false }
