@@ -2,9 +2,7 @@
 
 `ic-siws-js` is a JavaScript/TypeScript support library for easy frontend integration with SIWS-enabled [Internet Computer](https://internetcomputer.org) canisters. In addition to the core JS/TS API, `ic-siws-js` provides dedicated integrations for **React, Vue, and Svelte**.
 
-This library is part of the [ic-siwe](https://github.com/kristoferlund/ic-siwe) project that enables Ethereum and Solana wallet-based authentication for applications on the Internet Computer (ICP) platform. The goal of the project is to enhance interoperability between blockchain wallets and the Internet Computer, enabling developers to build applications that leverage the strengths of both platforms.
-
-A SIWS provider canister implements the SIWS identity service and exposes the SIWS login interface. The `ic-siws-js` library provides functions for managing Internet Computer delegate identities created via Solana signatures. The easiest way to integrate is to use this library together with the IC SIWS provider canister.
+This library is part of the [ic-siws](https://github.com/kristoferlund/ic-siws) project that enables Solana wallet-based authentication for applications on the Internet Computer (ICP) platform. The goal of the project is to enhance interoperability between blockchain wallets and the Internet Computer, enabling developers to build applications that leverage the strengths of both platforms.
 
 
 [![version][version-image]][npm-link]
@@ -66,7 +64,7 @@ npm install ic-siws-js @solana/wallet-adapter-base @solana/web3.js @dfinity/agen
 ### Quick Start (Vanilla JS/TS)
 
 > [!TIP]
-> A complete Vanilla TS example can be found in the [ic-siws-vanilla-ts-demo](xxx) repository.
+> A complete Vanilla TS example can be found in the [ic-siws-vanilla-ts-demo](https://github.com/kristoferlund/ic-siws-vanilla-ts-demo) repository.
 
 ```ts
 import { canisterId } from "../../ic_siws_provider/declarations/index";
@@ -105,14 +103,19 @@ siwsStateStore.subscribe((snapshot) => {
 }
 ```
 
+The SIWS login process is initiated by calling the `login` function. This function requests a SIWS message from the backend if it has not already been loaded. The user is asked to sign the message using their Solana wallet and the signed message is sent to the backend for authentication. Once the authentication is complete, the user's identity is stored in local storage and the `identity` state variable is updated with the new identity.
+
+The `loginStatus` state variable can be used to indicate the status of the login process. Errors that occur during the login process are stored in the `loginError` state variable.
+
+
 ### Usage with React
 
 > [!TIP]
-> A complete React example can be found in the [ic-siws-react-demo](xxx) repository.
+> A complete React example can be found in the [ic-siws-react-demo](https://github.com/kristoferlund/ic-siws-react-demo) repository.
 
 The React submodule comes with the `SiweIdentityProvider` component that makes the `SiweManager` available throughout the app. It also provides a `useSiwe` hook that can be used to interact with the `SiweManager` instance.
 
-### 1. Setup the `SiweIdentityProvider` component
+#### 1. Setup the `SiweIdentityProvider` component
 
 Wrap your application's root component with `SiweIdentityProvider` to provide all child components access to the SIWE identity context. Provide the component with the canister id of the SIWE provider canister.
 
@@ -134,11 +137,8 @@ function App() {
 }
 ```
 
-### 2. Initiate the login process
+#### 2. The `useSiws` hook
 
-The login process is initiated by calling the `login` function. This function requests a SIWS message from the backend if it has not already been loaded. The user is asked to sign the message using their Solana wallet and the signed message is sent to the backend for authentication. Once the authentication is complete, the user's identity is stored in local storage and the `identity` state variable is updated with the new identity.
-
-The `loginStatus` state variable can be used to indicate the status of the login process. Errors that occur during the login process are stored in the `loginError` state variable.
 
 ```jsx
 import { useSiws } from 'ic-siws-js/react';
@@ -154,15 +154,13 @@ return (
 ### Usage with Vue
 
 > [!TIP]
-> A complete Vue example can be found in the [ic-siws-vue-demo](xxx) repository.
+> A complete Vue example can be found in the [ic-siws-vue-demo](https://github.com/kristoferlund/ic-siws-vue-demo) repository.
 
-The Vue submodule comes with `SiwsIdentityProvider` that makes the `SiwsManager` available to all components in the app. It also provides a `useSiws` hook to access the SIWS identity context.
+#### 1. Initialize the SIWS indetity provider
 
-#### 1. Initialize the SIWS provider context
+In your root `App.vue`, call `createSiwsIdentityProvider` with the canister ID of the SIWS provider canister and optional Solana adapter.
 
-In your root `App.vue`, call `createSiwsIdentityProvider` inside the `<script setup>` to configure the SIWS context with your canister ID and optional Solana adapter.
-
-```html
+```vuew
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { createSiwsIdentityProvider, useSiws } from "ic-siws-js/vue";
@@ -196,7 +194,9 @@ watch(wallet, ({ adapter }) => {
 </template>
 ```
 
-```html
+#### 2. The `useSiws` hook
+
+```vue
 <script setup lang="ts">
 import { computed, watch } from "vue";
 import { useSiws } from "ic-siws-js/vue";
@@ -233,7 +233,7 @@ watch(publicKey, () => {
 ### Usage with Svelte
 
 > [!TIP]
-> A complete React example can be found in the [ic-siws-svelte-demo](xxx) repository.
+> A complete Svelte example can be found in the [ic-siws-svelte-demo](https://github.com/kristoferlund/ic-siws-svelte-demo) repository.
 
 
 #### 1. Initialize the SIWS manager
@@ -254,8 +254,7 @@ Call `init` from `ic-siws-js/svelte` in your top-level component (`App.svelte`) 
 ```
 
 
-SigninButton.svelte
-#### 2. Use the SIWS store
+#### 2. Use the SIWS store in any component
 ```svelte
 <script lang="ts">
   import { siws } from 'ic-siws-js/svelte';
@@ -294,8 +293,6 @@ SigninButton.svelte
   {/if}
 {/if}
 ```
-```
-
 
 ## API Reference
 
@@ -309,7 +306,7 @@ The `SiwsIdentityProvider` component (for React and Vue) or `SiwsIdentityProvide
 - `actorOptions?: ActorConfig` — Optional actor configuration options.
 - `children: ReactNode` — (React only) Child components to wrap. In Svelte and Vue, use the default slot or provided hook respectively.
 
-### useSiws interface
+### SiwsIdentityContextType interface
 
 ```ts
 export type PrepareLoginStatus = "error" | "preparing" | "success" | "idle";
@@ -320,6 +317,10 @@ export type SiwsIdentityContextType = {
   /** Is set to `true` on mount until a stored identity is loaded from local storage or
    * none is found. */
   isInitializing: boolean;
+
+  /** Sets the wallet adapter to be used for signing the SIWE message. This must be called
+   * before calling `login()`. Alternatively, you can pass the adapter to the SiwsManager constructor. */
+  setAdapter: (adapter: Adapter) => Promise<void>;
 
   /** Load a SIWE message from the provider canister, to be used for login. Calling prepareLogin
    * is optional, as it will be called automatically on login if not called manually. */
@@ -381,11 +382,8 @@ export type SiwsIdentityContextType = {
   /** The Ethereum address associated with current identity. This address is not necessarily
    * the same as the address of the currently connected wallet - on wallet change, the addresses
    * will differ. */
-  identityAddress?: string;
+  identityPublicKey?: PublicKey;
 
-  /** Sets or changes the Solana wallet adapter at runtime. Must be called before login if the adapter was not provided initially. */
-  setAdapter: (adapter: Adapter) => Promise<void>;
-  
   /** Clears the identity from the state and local storage. Effectively "logs the user out". */
   clear: () => void;
 };
