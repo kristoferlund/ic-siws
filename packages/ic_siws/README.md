@@ -2,12 +2,12 @@
 
 [![Crate][crate-image]][crate-link] [![Docs][docs-image]][docs-link]
 
-`ic_siws` is a Rust library that facilitates the integration of Solana wallet-based authentication with applications on the Internet Computer (ICP) platform. The library provides all necessary tools for integrating Sign-In with Solna (SIWS) into ICP canisters, from generating SIWS messages to creating delegate identities.
+`ic_siws` is a Rust library that facilitates the integration of Solana wallet-based authentication with applications on the Internet Computer (ICP) platform. The library provides all necessary tools for integrating Sign-In with Solana (SIWS) into ICP canisters, from generating SIWS messages to creating delegate identities.
 
 `ic_siws` is part of the [ic-siws](https://github.com/kristoferlund/ic-siws) project. The goal of the project is to enhance the interoperability between Solana and the Internet Computer platform, enabling developers to build applications that leverage the strengths of both platforms.
 
 ## Key Features
-- **Solana Wallet Sign-In**: Enables Solana wallet sign-in for ICP applications. Sign in with any eth wallet to generate an ICP identity and session.
+- **Solana Wallet Sign-In**: Enables Solana wallet sign-in for ICP applications. Sign in with any Solana wallet to generate an ICP identity and session.
 - **Session Identity Uniqueness**: Ensures that session identities are specific to each application's context, preventing cross-app identity misuse.
 - **Consistent Principal Generation**: Guarantees that logging in with a Solana wallet consistently produces the same Principal, irrespective of the client used.
 - **Direct Solana Address to Principal Mapping**: Creates a one-to-one correlation between Solana addresses and Principals within the scope of the current application.
@@ -27,7 +27,6 @@ for Ethereum-based applications.
   - [`siws_prepare_login`](#siws_prepare_login)
   - [`siws_login`](#siws_login)
   - [`siws_get_delegation`](#siws_get_delegation)
-- [Crate features](#crate-features)
 - [Updates](#updates)
 - [Contributing](#contributing)
 - [License](#license)
@@ -183,7 +182,7 @@ The login flow is illustrated in the following diagram:
     │      Push login button       ┌┴┐                                                │                                        │
     │ ────────────────────────────>│ │                                                │                                        │
     │                              │ │                                                │                                        │
-    │                              │ │          siws_prepare_login(eth_address)      ┌┴┐                                       │
+    │                              │ │          siws_prepare_login(address)      ┌┴┐                                       │
     │                              │ │ ─────────────────────────────────────────────>│ │                                       │
     │                              │ │                                               └┬┘                                       │
     │                              │ │                OK, siws_message                │                                        │
@@ -210,7 +209,7 @@ The login flow is illustrated in the following diagram:
     │                              │ │ ─────────────────────────────────────────────>│ │                                       │
     │                              │ │                                               │ │                                       │
     │                              │ │                                               │ │────┐                                  │
-    │                              │ │                                               │ │    │ Verify signature and eth_address │
+    │                              │ │                                               │ │    │ Verify signature and address │
     │                              │ │                                               │ │<───┘                                  │
     │                              │ │                                               │ │                                       │
     │                              │ │                                               │ │────┐                                  │

@@ -49,6 +49,8 @@ npm install ic-siws-js @solana/wallet-adapter-base @solana/web3.js @dfinity/agen
 
 ## Quick start
 
+> [!TIP]
+> A complete Vanilla TS example can be found in the [ic-siws-vanilla-ts-demo](xxx) repository.
 
 ```ts
 import { canisterId } from "../../ic_siws_provider/declarations/index";
@@ -89,9 +91,10 @@ siwsStateStore.subscribe((snapshot) => {
 
 ## Usage with React
 
-> Use the React submodule for complete integration examples.
+> [!TIP]
+> A complete React example can be found in the [ic-siws-react-demo](xxx) repository.
 
-The React submodule comes with `SiweIdentityProvider` that makes the `SiweManager` available to all components in the app. It also provides a `useSiwe` hook that can be used to interact with the `SiweManager` instance.
+The React submodule comes with the `SiweIdentityProvider` component that makes the `SiweManager` available throughout the app. It also provides a `useSiwe` hook that can be used to interact with the `SiweManager` instance.
 
 ### 1. Setup the `SiweIdentityProvider` component
 
@@ -134,7 +137,8 @@ return (
 
 ## Usage with Vue
 
-> Use the Vue submodule for complete integration examples.
+> [!TIP]
+> A complete Vue example can be found in the [ic-siws-vue-demo](xxx) repository.
 
 The Vue submodule comes with `SiwsIdentityProvider` that makes the `SiwsManager` available to all components in the app. It also provides a `useSiws` hook to access the SIWS identity context.
 
@@ -144,11 +148,23 @@ In the `App.vue` component, initiate the `SiwsIdentityProvider` with a reference
 
 ```html
 <script setup lang="ts">
+
+import { ref } from "vue";
 import { createSiwsIdentityProvider } from "ic-siws-js/vue";
 import { canisterId } from "../../ic_siws_provider/declarations/index";
+import { useWallet } from "solana-wallets-vue";
+import type { Adapter } from "@solana/wallet-adapter-base";
 
+// Destructure the wallet store to access the adapter
+const { wallet } = useWallet();
+
+// Adapter reference for SIWS provider; may be undefined until wallet connects
+const adapterRef = ref<Adapter | undefined>(wallet.value?.adapter);
+
+// Initialize the SIWS identity provider with canister ID and adapter
 createSiwsIdentityProvider({
   canisterId,
+  adapter: adapterRef.value,
 });
 
 </script>
@@ -158,73 +174,115 @@ createSiwsIdentityProvider({
 </template>
 ```
 
-## Usage with Svelte
-
-> [!TIP]
-> A complete Svelte example can be found in the `ic-siws-svelte-demo` repository.
-
-The Svelte submodule provides a `SiwsIdentityProvider` component and a `useSiws` store for easy integration.
-
-### 1. Setup the `SiwsIdentityProvider` Component
-
-Wrap your application in `App.svelte` with `SiwsIdentityProvider`:
-
-```svelte
-<script lang="ts">
-  import { SiwsIdentityProvider } from "ic-siws-js/svelte";
-  import { canisterId } from "../../ic_siws_provider/declarations/index";
-</script>
-
-<SiwsIdentityProvider canisterId={canisterId}>
-  <!-- Your app components -->
-</SiwsIdentityProvider>
-```
-
-### 2. Initiate the Login Process
-
-Use the `useSiws` store to access authentication state and actions:
-
-```svelte
-<script lang="ts">
-  import { useSiws } from "ic-siws-js/svelte";
-  const siws = useSiws();
-</script>
-
-<button
-  disabled={$siws.loginStatus === "logging-in"}
-  on:click={$siws.login}
->
-  { $siws.loginStatus === "logging-in" ? "Signing in…" : "Login" }
-</button>
-```
-
-### 2. Initiate the login process
-
-The login process is initiated by calling the `login` function. This function requests a SIWS message from the backend if it has not already been loaded. The user is asked to sign the message using their Solana wallet and the signed message is sent to the backend for authentication. Once the authentication is complete, the user's identity is stored in local storage and the `identity` state variable is updated with the new identity.
-
-The `loginStatus` state variable can be used to indicate the status of the login process. Errors that occur during the login process are stored in the `loginError` state variable.
-
 ```html
-
 <script setup lang="ts">
+import { computed, watch } from "vue";
 import { useSiws } from "ic-siws-js/vue";
+import { WalletMultiButton } from "solana-wallets-vue";
+import { useWallet } from "solana-wallets-vue";
 
 const siws = useSiws();
+const { publicKey, wallet } = useWallet();
+
+// Update SIWS adapter when wallet connects; clear identity on disconnect
+watch(publicKey, () => {
+  const adapter = wallet.value?.adapter;
+  if (adapter) {
+    siws.setAdapter(adapter);
+  } else { 
+    siws.clear();
+  }
+});
 
 </script>
 
 <template>
-  <div>
-    <button @click="siws.login">
-      Login
-    </button>
-
-    <button @click="siws.clear">
-      Logout
-    </button>
-  </div>
+  <button
+    v-if="publicKey && !siws.identity"
+    @click="siws.login"
+    :disabled="isLoginButtonDisabled"
+    id="loginButton"
+  >
+    {{ loginButtonText }}
+  </button>
 </template>
 ```
+
+## Usage with Svelte
+
+> [!TIP]
+> A complete React example can be found in the [ic-siws-svelte-demo](xxx) repository.
+
+
+### 1. xxx
+
+xxx
+
+```html
+<script lang="ts">
+  import { SolanaConnect } from 'solana-connect';
+  import { canisterId } from '../../ic_siws_provider/declarations/index';
+  import { init as initSiws } from 'ic-siws-js/svelte';
+ 
+   const solConnect = new SolanaConnect();
+ 
+  // Initialize the siws library with the id of the provider canister
+  initSiws(canisterId);
+</script>
+
+... app components
+
+```
+
+
+SigninButton.svelte
+```html
+<script lang="ts">
+  import { get } from 'svelte/store';
+  import { adapterStore } from '../stores/adapter';
+  import { siws } from 'ic-siws-js/svelte';
+
+  function login() {
+    get(siws).login();
+  }
+
+  function logout() {
+    get(siws).clear();
+  }
+</script>
+
+{#if $adapterStore}
+
+  {#if !$siws.identity}
+    <button
+      id="loginButton"
+      on:click={login}
+      disabled={$siws.isPreparingLogin || $siws.isLoggingIn || $siws.signMessageStatus === 'pending'}
+    >
+      {#if $siws.isPreparingLogin}
+        Preparing…
+      {:else if $siws.isLoggingIn}
+        Logging in…
+      {:else if $siws.signMessageStatus === 'pending'}
+        Signing…
+      {:else}
+        Login
+      {/if}
+    </button>
+  {/if}
+
+  {#if $siws.identity}
+    <button
+      id="logoutButton"
+      on:click={logout}
+    >
+      Logout
+    </button>
+  {/if}
+
+{/if}
+```
+
 
 ## SiweIdentityProvider props
 

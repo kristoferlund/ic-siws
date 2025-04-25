@@ -202,7 +202,7 @@ In addition to the SIWS endpoints, required by the `useSiwsIdentity` hook, this 
   - `Ok(String)`: The Base58 encoded Solana address, if found.
   - `Err(String)`: An error message if the principal cannot be converted or no address is found.
 
-### [get_caller_address](https://github.com/kristoferlund/ic-siws/blob/main/packages/ic_siws_provider/src/service/get_calle_address.rs)
+### [get_caller_address](https://github.com/kristoferlund/ic-siws/blob/main/packages/ic_siws_provider/src/service/get_caller_address.rs)
 
 - **Purpose**: Retrieves the Solana address associated with the caller. This is a convenience function that internally calls `get_address`.
 - **Output**: Same as `get_address`.
@@ -242,13 +242,13 @@ In addition to the SIWS endpoints, required by the `useSiwsIdentity` hook, this 
 
 In addition to the key functionalities for Solana wallet authentication, the `ic_siws_provider` canister includes initialization and upgrade endpoints essential for setting up and maintaining the canister.
 
-### [init](https://github.com/kristoferlund/ic-siws/blob/main/packages/ic_siws_provider/src/service/init.rs)
+### [init](https://github.com/kristoferlund/ic-siws/blob/main/packages/ic_siws_provider/src/service/init_upgrade.rs)
 
 - **Purpose**: Initializes the `ic_siws_provider` canister with necessary settings for the SIWS process.
 - **Input**: `SettingsInput` struct containing configuration details like domain, URI, salt, chain ID, etc.
 - **Operation**: Sets up the SIWS library with the provided settings. This function is invoked when the canister is created.
 
-### [upgrade](https://github.com/kristoferlund/ic-siws/blob/main/packages/ic_siws_provider/src/service/upgrade.rs)
+### [upgrade](https://github.com/kristoferlund/ic-siws/blob/main/packages/ic_siws_provider/src/service/init_upgrade.rs)
 
 - **Purpose**: Maintains the state and settings of the `ic_siws_provider` canister during an upgrade.
 - **Input**: `SettingsInput` struct similar to the `init` function.
@@ -277,38 +277,41 @@ Defines the settings that controls the behavior of the `ic_siws_provider` canist
 
 ```rust
 pub struct SettingsInput {
-    // The full domain, including subdomains, from where the frontend that uses SIWE is served.
-    // Example: "example.com" or "sub.example.com".
+    /// The domain from where the frontend that uses SIWS is served.
+    /// Example: "example.com" or "sub.example.com".
     pub domain: String,
 
-    // The full URI, potentially including port number of the frontend that uses SIWE.
-    // Example: "https://example.com" or "https://sub.example.com:8080".
+    /// The full URI, including port number, of the frontend that uses SIWS.
+    /// Example: "https://example.com" or "https://sub.example.com:8080".
     pub uri: String,
 
-    // The salt is used when generating the seed that uniquely identifies each user principal. The salt can only contain
-    /// printable ASCII characters.
+    /// The salt used when generating the seed that uniquely identifies each user principal.
+    /// The salt can only contain printable ASCII characters.
     pub salt: String,
 
-    /// Optional. The Solana chain ID for ic-siws, defaults to "mainnet". Valid values are "mainnet", "testnet", "devnet", "localnet", "solana:mainnet", "solana:testnet", "solana:devnet".
-    pub chain_id: Option<u32>,
+    /// Optional. The Solana chain ID for ic-siws. Defaults to "mainnet".
+    /// Valid values: "mainnet", "testnet", "devnet", "localnet", "solana:mainnet", "solana:testnet", "solana:devnet".
+    pub chain_id: Option<String>,
 
-    // Optional. The scheme used to serve the frontend that uses SIWS. Defaults to "https".
+    /// Optional. The scheme used to serve the frontend (e.g., "http" or "https").
+    /// Defaults to "https".
     pub scheme: Option<String>,
 
-    // Optional. The statement is a message or declaration, often presented to the user by the Solana wallet
+    /// Optional. The statement is a message or declaration presented to the user by their Solana wallet.
+    /// Defaults to "SIWS Fields:".
     pub statement: Option<String>,
 
-    // Optional. The TTL for a sign-in message in nanoseconds. After this time, the sign-in message will be pruned.
+    /// Optional. Time-to-live for a sign-in message in nanoseconds. Defaults to 5 minutes.
     pub sign_in_expires_in: Option<u64>,
 
-    // Optional. The TTL for a session in nanoseconds.
+    /// Optional. Time-to-live for a session in nanoseconds. Defaults to 30 minutes.
     pub session_expires_in: Option<u64>,
 
-    // Optional. The list of canisters for which the identity delegation is allowed. Defaults to None, which means
-    // that the delegation is allowed for all canisters.
+    /// Optional. List of canister IDs (as text) for which the identity delegation is allowed.
+    /// Must include this canister's ID if set.
     pub targets: Option<Vec<String>>,
 
-    // Optional. The runtime features that control the behavior of the SIWS library.
+    /// Optional. Runtime features to customize canister behavior.
     pub runtime_features: Option<Vec<RuntimeFeature>>,
 }
 ```
