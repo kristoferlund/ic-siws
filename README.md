@@ -59,6 +59,16 @@ This is the easiest way to get SIWS up and running in any IC app.
 Frontend support library for interacting with SIWS‑enabled canisters.  
 Supports vanilla JS/TS as well as Vue, React, and Svelte integrations.
 
+## Demo apps
+
+There are several demo applications available that showcase the integration of the `ic_siws_provider` canister with different frontend frameworks. These demos provide a practical example of how to use the canister to implement Solana wallet authentication in your ICP application.
+
+* React: [ic-siws-react-demo](https://github.com/kristoferlund/ic-siws-react-demo)
+* Vue: [ic-siws-vue-demo](https://github.com/kristoferlund/ic-siws-vue-demo)
+* Svelte: [ic-siws-svelte-demo](https://github.com/kristoferlund/ic-siws-svelte-demo)
+* Vanilla TS: [ic-siws-vanilla-ts-demo](https://github.com/kristoferlund/ic-siws-vanilla-ts-demo)
+
+
 ## Updates
 
 See the respective package CHANGELOG for details on updates.
