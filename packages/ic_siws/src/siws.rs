@@ -1,12 +1,9 @@
+use crate::{hash, settings::Settings, solana::SolPubkey, time::get_current_time, with_settings};
 use candid::CandidType;
+use ic_certified_map::Hash;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt};
 use time::{macros::format_description, OffsetDateTime};
-
-use crate::{
-    rand::generate_nonce, settings::Settings, solana::SolPubkey, time::get_current_time,
-    with_settings,
-};
 
 #[derive(Debug)]
 pub enum SiwsMessageError {
@@ -68,8 +65,7 @@ pub struct SiwsMessage {
 }
 
 impl SiwsMessage {
-    pub fn new(pubkey: &SolPubkey) -> SiwsMessage {
-        let nonce = generate_nonce();
+    pub fn new(pubkey: &SolPubkey, nonce: &str) -> SiwsMessage {
         let current_time = get_current_time();
         with_settings!(|settings: &Settings| {
             SiwsMessage {
@@ -79,7 +75,7 @@ impl SiwsMessage {
                 uri: settings.uri.clone(),
                 version: 1,
                 chain_id: settings.chain_id.clone(),
-                nonce,
+                nonce: nonce.to_string(),
                 issued_at: get_current_time(),
                 expiration_time: current_time.saturating_add(settings.sign_in_expires_in),
             }
@@ -142,11 +138,27 @@ impl From<SiwsMessage> for String {
     }
 }
 
+/// The SiwsMessageMap map hash is the hash of the caller pubkey and the message nonce.
+/// This ensures every call to `siws_prepare_login` leads to one new copy of the SIWS message being stored.
+pub fn siws_message_map_hash(pubkey: &SolPubkey, nonce: &str) -> Hash {
+    let mut bytes: Vec<u8> = vec![];
+
+    let pubkey_bytes = pubkey.to_bytes();
+    bytes.push(pubkey_bytes.len() as u8);
+    bytes.extend(pubkey_bytes);
+
+    let nonce_bytes = nonce.as_bytes();
+    bytes.push(nonce_bytes.len() as u8);
+    bytes.extend(nonce_bytes);
+
+    hash::hash_bytes(bytes)
+}
+
 /// The SiwsMessageMap is a map of SIWS messages keyed by the Solana address of the user. SIWS messages
 /// are stored in the map during the course of the login process and are removed once the login process
 /// is complete. The map is also pruned periodically to remove expired SIWS messages.
 pub struct SiwsMessageMap {
-    map: HashMap<Vec<u8>, SiwsMessage>,
+    map: HashMap<[u8; 32], SiwsMessage>,
 }
 
 impl SiwsMessageMap {
@@ -164,22 +176,25 @@ impl SiwsMessageMap {
     }
 
     /// Adds a SIWS message to the map.
-    pub fn insert(&mut self, pubkey: &SolPubkey, message: SiwsMessage) {
-        self.map.insert(pubkey.to_bytes().to_vec(), message);
+    pub fn insert(&mut self, pubkey: &SolPubkey, message: SiwsMessage, nonce: &str) {
+        let hash = siws_message_map_hash(pubkey, nonce);
+        self.map.insert(hash, message);
     }
 
     /// Returns a cloned SIWS message associated with the provided address or an error if the message
     /// does not exist.
-    pub fn get(&self, pubkey: &SolPubkey) -> Result<SiwsMessage, SiwsMessageError> {
+    pub fn get(&self, pubkey: &SolPubkey, nonce: &str) -> Result<SiwsMessage, SiwsMessageError> {
+        let hash = siws_message_map_hash(pubkey, nonce);
         self.map
-            .get(&pubkey.to_bytes().to_vec())
+            .get(&hash)
             .cloned()
             .ok_or(SiwsMessageError::MessageNotFound)
     }
 
     /// Removes the SIWS message associated with the provided address.
-    pub fn remove(&mut self, pubkey: &SolPubkey) {
-        self.map.remove(&pubkey.to_bytes().to_vec());
+    pub fn remove(&mut self, pubkey: &SolPubkey, nonce: &str) {
+        let hash = siws_message_map_hash(pubkey, nonce);
+        self.map.remove(&hash);
     }
 }
 

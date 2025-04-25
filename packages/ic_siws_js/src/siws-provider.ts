@@ -14,7 +14,7 @@ import type { PublicKey } from "@solana/web3.js";
  * Creates an anonymous actor for interactions with the Internet Computer.
  * This is used primarily for the initial authentication process.
  */
-export function createAnonymousActor({
+export async function createAnonymousActor({
   idlFactory,
   canisterId,
   httpAgentOptions,
@@ -25,18 +25,11 @@ export function createAnonymousActor({
   httpAgentOptions?: HttpAgentOptions;
   actorOptions?: ActorConfig;
 }) {
-  if (!idlFactory || !canisterId) return;
-  const agent = new HttpAgent({ ...httpAgentOptions });
-
-  if (process.env.DFX_NETWORK !== "ic") {
-    agent.fetchRootKey().catch((err) => {
-      console.warn(
-        "Unable to fetch root key. Check to ensure that your local replica is running"
-      );
-      console.error(err);
-    });
-  }
-
+  const shouldFetchRootKey = process.env.DFX_NETWORK !== "ic";
+  const agent = await HttpAgent.create({
+    ...httpAgentOptions,
+    shouldFetchRootKey,
+  });
   return Actor.createActor<SIWS_IDENTITY_SERVICE>(idlFactory, {
     agent,
     canisterId,
@@ -46,14 +39,14 @@ export function createAnonymousActor({
 
 export async function callPrepareLogin(
   anonymousActor: ActorSubclass<SIWS_IDENTITY_SERVICE>,
-  publicKey: PublicKey
+  publicKey: PublicKey,
 ) {
   if (!anonymousActor || !publicKey) {
     throw new Error("Invalid actor or public key");
   }
 
   const response = await anonymousActor.siws_prepare_login(
-    publicKey.toBase58()
+    publicKey.toBase58(),
   );
 
   if ("Err" in response) {
@@ -70,7 +63,8 @@ export async function callLogin(
   anonymousActor: ActorSubclass<SIWS_IDENTITY_SERVICE>,
   signature: string,
   publicKey: PublicKey,
-  sessionPublicKey: DerEncodedPublicKey
+  sessionPublicKey: DerEncodedPublicKey,
+  nonce: string,
 ) {
   if (!anonymousActor || !signature || !publicKey) {
     throw new Error("Invalid actor, data or address");
@@ -79,7 +73,8 @@ export async function callLogin(
   const loginReponse = await anonymousActor.siws_login(
     signature,
     publicKey.toBase58(),
-    new Uint8Array(sessionPublicKey)
+    new Uint8Array(sessionPublicKey),
+    nonce,
   );
 
   if ("Err" in loginReponse) {
@@ -96,7 +91,7 @@ export async function callGetDelegation(
   anonymousActor: ActorSubclass<SIWS_IDENTITY_SERVICE>,
   publicKey: PublicKey,
   sessionPublicKey: DerEncodedPublicKey,
-  expiration: bigint
+  expiration: bigint,
 ) {
   if (!anonymousActor || !publicKey) {
     throw new Error("Invalid actor or address");
@@ -105,7 +100,7 @@ export async function callGetDelegation(
   const response = await anonymousActor.siws_get_delegation(
     publicKey.toBase58(),
     new Uint8Array(sessionPublicKey),
-    expiration
+    expiration,
   );
 
   if ("Err" in response) {

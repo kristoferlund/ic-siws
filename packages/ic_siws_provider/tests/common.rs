@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use candid::{decode_one, encode_args, encode_one, CandidType, Principal};
+use ed25519_consensus::SigningKey;
 use ic_agent::{
     identity::{
         BasicIdentity, DelegatedIdentity, Delegation as AgentDelegation,
@@ -9,8 +10,8 @@ use ic_agent::{
     Identity,
 };
 use ic_siws::{delegation::SignedDelegation, login::LoginDetails, siws::SiwsMessage};
-use pocket_ic::{PocketIc, WasmResult};
-use rand::Rng;
+use pocket_ic::PocketIc;
+use rand::thread_rng;
 use serde::Deserialize;
 use solana_sdk::signature::{Keypair, Signer};
 use std::time::Duration;
@@ -45,6 +46,7 @@ pub const SESSION_KEY: &[u8] = &[
     92, 98, 163, 114, 182, 117, 181, 51, 15, 219, 197, 104, 55, 123, 245, 74, 181, 35, 181, 171,
     196,
 ]; // DER encoded session key
+pub const NONCE: &str = "nonce123";
 
 pub fn valid_settings(canister_id: Principal, targets: Option<Vec<Principal>>) -> SettingsInput {
     // If specific targets have been listed, add the canister id of this canister to the list of targets.
@@ -106,8 +108,7 @@ pub fn update<T: CandidType + for<'de> Deserialize<'de>>(
     args: Vec<u8>,
 ) -> Result<T, String> {
     match ic.update_call(canister, sender, method, args) {
-        Ok(WasmResult::Reply(data)) => decode_one(&data).unwrap(),
-        Ok(WasmResult::Reject(error_message)) => Err(error_message.to_string()),
+        Ok(data) => decode_one(&data).unwrap(),
         Err(user_error) => Err(user_error.to_string()),
     }
 }
@@ -120,8 +121,7 @@ pub fn query<T: CandidType + for<'de> Deserialize<'de>>(
     args: Vec<u8>,
 ) -> Result<T, String> {
     match ic.query_call(canister, sender, method, args) {
-        Ok(WasmResult::Reply(data)) => decode_one(&data).unwrap(),
-        Ok(WasmResult::Reject(error_message)) => Err(error_message.to_string()),
+        Ok(data) => decode_one(&data).unwrap(),
         Err(user_error) => Err(user_error.to_string()),
     }
 }
@@ -159,11 +159,7 @@ pub fn prepare_login_and_sign_message(
 }
 
 pub fn create_session_identity() -> BasicIdentity {
-    let mut ed25519_seed = [0u8; 32];
-    rand::thread_rng().fill(&mut ed25519_seed);
-    let ed25519_keypair =
-        ring::signature::Ed25519KeyPair::from_seed_unchecked(&ed25519_seed).unwrap();
-    BasicIdentity::from_key_pair(ed25519_keypair)
+    BasicIdentity::from_signing_key(SigningKey::new(thread_rng()))
 }
 
 pub fn create_delegated_identity(
@@ -178,11 +174,10 @@ pub fn create_delegated_identity(
             pubkey: identity.public_key().unwrap(),
             expiration: login_response.expiration,
             targets,
-            senders: None,
         },
         signature,
     };
-    DelegatedIdentity::new(
+    DelegatedIdentity::new_unchecked(
         login_response.user_canister_pubkey.to_vec(),
         Box::new(identity),
         vec![signed_delegation],
@@ -195,14 +190,21 @@ pub fn full_login(
     targets: Option<Vec<Principal>>,
 ) -> (String, DelegatedIdentity) {
     let (wallet, address) = create_wallet();
-    let (signature, _) = prepare_login_and_sign_message(ic, ic_siws_provider_canister, &wallet);
+    let (signature, message) =
+        prepare_login_and_sign_message(ic, ic_siws_provider_canister, &wallet);
 
     // Create a session identity
     let session_identity = create_session_identity();
     let session_pubkey = session_identity.public_key().unwrap();
 
     // Login
-    let login_args = encode_args((signature, address.clone(), session_pubkey.clone())).unwrap();
+    let login_args = encode_args((
+        signature,
+        address.clone(),
+        session_pubkey.clone(),
+        message.nonce.clone(),
+    ))
+    .unwrap();
     let login_response: LoginDetails = update(
         ic,
         Principal::anonymous(),

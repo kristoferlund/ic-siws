@@ -1,16 +1,10 @@
-use std::fmt;
-
-use candid::{CandidType, Principal};
-use serde::Deserialize;
-use serde_bytes::ByteBuf;
-use simple_asn1::ASN1EncodeErr;
-
 use crate::{
     delegation::{
         create_delegation, create_delegation_hash, create_user_canister_pubkey, generate_seed,
         DelegationError,
     },
     hash,
+    rand::generate_nonce,
     settings::Settings,
     signature_map::SignatureMap,
     siws::{SiwsMessage, SiwsMessageError},
@@ -18,11 +12,20 @@ use crate::{
     time::get_current_time,
     with_settings, SIWS_MESSAGES,
 };
+use candid::{CandidType, Principal};
+use serde::Deserialize;
+use serde_bytes::ByteBuf;
+use simple_asn1::ASN1EncodeErr;
+use std::fmt;
 
 const MAX_SIGS_TO_PRUNE: usize = 10;
 
+type Nonce = String;
+
 /// This function is the first step of the user login process. It validates the provided Solana address,
-/// creates a SIWS message, saves it for future use, and returns it.
+/// creates a SIWS message and its `nonce`, saves it for future use, and returns it. The `nonce` is
+/// used by the login function to prevent replay attacks. It is also used as part of the SIWS
+/// message key, to ensure that a new SIWS message is created for each login attempt.
 ///
 /// # Example
 /// ```ignore
@@ -35,11 +38,12 @@ const MAX_SIGS_TO_PRUNE: usize = 10;
 /// let message = prepare_login(&address).unwrap();
 /// ```
 pub fn prepare_login(address: &SolPubkey) -> SiwsMessage {
-    let message = SiwsMessage::new(address);
+    let nonce = generate_nonce();
+    let message = SiwsMessage::new(address, &nonce);
 
     // Save the SIWS message for use in the login call
     SIWS_MESSAGES.with_borrow_mut(|siws_messages| {
-        siws_messages.insert(address, message.clone());
+        siws_messages.insert(address, message.clone(), &nonce);
     });
 
     message
@@ -111,16 +115,18 @@ impl fmt::Display for LoginError {
 /// * `signature_map`: A mutable reference to `SignatureMap` to which the delegation hash will be added
 ///   after successful validation.
 /// * `canister_id`: The principal of the canister performing the login.
+/// * `nonce`: The nonce generated during the `prepare_login` call.
 ///
 /// # Returns
 /// A `Result` that, on success, contains the [LoginDetails] with session expiration and user canister
-/// public key, or an error string on failure.
+/// public key, or an error of type [`LoginError`] on failure.
 pub fn login(
     signature: &SolSignature,
     address: &SolPubkey,
     session_key: ByteBuf,
     signature_map: &mut SignatureMap,
     canister_id: &Principal,
+    nonce: &Nonce,
 ) -> Result<LoginDetails, LoginError> {
     // Remove expired SIWS messages from the state before proceeding. The init settings determines
     // the time to live for SIWS messages.
@@ -130,16 +136,17 @@ pub fn login(
 
         // Get the previously created SIWS message for current address. If it has expired or does not
         // exist, return an error.
-        let message = siws_messages.get(address)?;
+        let message = siws_messages.get(address, nonce)?;
         let message_string: String = message.clone().into();
 
         // Verify the supplied signature and public key against the stored SIWS message.
-        verify_sol_signature(&message_string, signature, address)
-            .map_err(LoginError::SignatureError)?;
+        let verification_result = verify_sol_signature(&message_string, signature, address);
 
-        // At this point, the signature has been verified and the SIWS message has been used. Remove
-        // the SIWS message from the state.
-        siws_messages.remove(address);
+        // Ensure the SIWS message is removed from the state both on success and on failure.
+        siws_messages.remove(address, nonce);
+
+        // Handle the result of the signature verification.
+        verification_result?;
 
         // The delegation is valid for the duration of the session as defined in the settings.
         let expiration = with_settings!(|settings: &Settings| {

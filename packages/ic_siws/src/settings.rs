@@ -37,7 +37,7 @@ pub struct Settings {
     /// The Solana chain ID, defaults to "mainnet"
     pub chain_id: String,
 
-    // The scheme used to serve the frontend that uses SIWS. Defaults to "https".
+    /// The scheme used to serve the frontend that uses SIWS. Defaults to "https".
     pub scheme: String,
 
     /// The statement is a message or declaration, often presented to the user by the Solana wallet
@@ -53,7 +53,7 @@ pub struct Settings {
     /// that the delegation is allowed for all canisters.
     pub targets: Option<Vec<Principal>>,
 
-    // Optional runtime features that can be enabled for SIWS.
+    /// Optional runtime features that can be enabled for SIWS.
     pub runtime_features: Option<Vec<RuntimeFeature>>,
 }
 

@@ -16,7 +16,7 @@ use crate::{LABEL_ASSETS, LABEL_SIG, STATE};
 /// Retrieves a signed delegation for a user to authenticate further actions.
 ///
 /// # Arguments
-/// * `address` (String): The Solana address of the user.
+/// * `pubkey` (String): The Solana pubkey of the user.
 /// * `session_key` (ByteBuf): A unique key that identifies the session.
 /// * `expiration` (u64): The expiration time of the delegation in nanoseconds since the UNIX epoch.
 ///

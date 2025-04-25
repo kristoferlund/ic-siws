@@ -1,0 +1,89 @@
+{
+  "name": "ic-siws-js",
+  "version": "0.1.0",
+  "description": "JS/TS/React support library for easy frontend integration with SIWS enabled Internet Computer canisters.",
+  "author": "Kristofer Lund <kristofer@kristoferlund.se>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kristoferlund/ic-siws/tree/main/packages/ic_siws_js"
+  },
+  "bugs": "https://github.com/kristoferlund/ic-siws/issues",
+  "homepage": "https://github.com/kristoferlund/ic-siws",
+  "keywords": [
+    "actor",
+    "dfinity",
+    "solana",
+    "hook",
+    "ic",
+    "internet computer",
+    "react",
+    "siws"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js",
+    "./vue": "./dist/vue/index.js",
+    "./react": "./dist/react/index.js",
+    "./svelte": "./dist/svelte/index.js"
+  },
+  "files": [
+    "dist",
+    "src",
+    "media"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && node build.js && tsc --emitDeclarationOnly",
+    "clean": "rm -rf dist",
+    "dev": "run-p dev:*",
+    "dev:esbuild": "pnpm run build --watch",
+    "dev:tsc": "tsc --watch --preserveWatchOutput",
+    "lint": "eslint ./src",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "peerDependencies": {
+    "@dfinity/agent": ">=2.1.2",
+    "@dfinity/candid": ">=2.1.1",
+    "@dfinity/identity": ">=2.1.2",
+    "@dfinity/principal": ">=2.1.2",
+    "@solana/wallet-adapter-base": ">=0.9.23",
+    "@solana/web3.js": ">=1.77.3",
+    "react": ">=18.3.1",
+    "react-dom": ">=18.3.1",
+    "vue": ">=3.5.13",
+    "svelte": ">=3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    },
+    "svelte": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "@types/node": "^20.10.6",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "esbuild": "^0.19.5",
+    "eslint": "^9.9.0",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.9",
+    "globals": "^15.9.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.0.1"
+  },
+  "dependencies": {
+    "@xstate/store": "^2.6.2",
+    "bs58": "^6.0.0"
+  }
+}

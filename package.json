@@ -1,7 +1,8 @@
 {
   "name": "ic-siws",
-  "version": "0.0.1",
+  "version": "0.0.0",
+  "private": true,
   "workspaces": [
-    "packages/ic-use-siws-identity"
+    "packages/ic_siws_js"
   ]
 }

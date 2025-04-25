@@ -4,8 +4,8 @@ import {
   Ed25519KeyIdentity,
 } from "@dfinity/identity";
 
-import { PublicKey } from "@solana/web3.js";
 import type { SiwsIdentityStorage } from "./storage.type";
+import { PublicKey } from "@solana/web3.js";
 
 const STORAGE_KEY = "siwsIdentity";
 
@@ -28,7 +28,7 @@ export function loadIdentity() {
   const d = DelegationChain.fromJSON(JSON.stringify(s.delegationChain));
   const i = DelegationIdentity.fromDelegation(
     Ed25519KeyIdentity.fromJSON(JSON.stringify(s.sessionIdentity)),
-    d
+    d,
   );
 
   return [p, i, d] as const;
@@ -40,7 +40,7 @@ export function loadIdentity() {
 export function saveIdentity(
   publicKey: PublicKey,
   sessionIdentity: Ed25519KeyIdentity,
-  delegationChain: DelegationChain
+  delegationChain: DelegationChain,
 ) {
   localStorage.setItem(
     STORAGE_KEY,
@@ -48,12 +48,12 @@ export function saveIdentity(
       publicKey: publicKey.toBase58(),
       sessionIdentity: sessionIdentity.toJSON(),
       delegationChain: delegationChain.toJSON(),
-    })
+    }),
   );
 }
 
 /**
- * Clears the SIWS identity from local storage.
+ * Clears the SIWE identity from local storage.
  */
 export function clearIdentity() {
   localStorage.removeItem(STORAGE_KEY);

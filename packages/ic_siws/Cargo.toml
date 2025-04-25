@@ -1,6 +1,6 @@
 [package]
 name = "ic_siws"
-version = "0.0.2"
+version = "0.1.0"
 edition = "2021"
 authors = ["Kristofer Lund <kristofer@kristoferlund.se>"]
 description = "Integrate Solana wallet-based authentication (SIWS) with applications on the Internet Computer (ICP) platform."
@@ -11,30 +11,27 @@ keywords = ["solana", "wallet", "internet-computer", "authentication", "siws"]
 categories = ["authentication", "cryptography::cryptocurrencies"]
 
 [dependencies]
-serde = { version = "1.0.188", features = ["derive"] }
-serde_json = "1.0.66"
-serde_bytes = "0.11"
-serde_cbor = "0.11"
-candid = "0.9.11"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+serde_bytes = "0.11.17"
+serde_cbor = "0.11.2"
+candid = "0.10.13"
 hex = "0.4.3"
-ic-cdk = "0.11.6"
-ic-cdk-timers = { version = "0.5.1", optional = true }
+ic-cdk = "0.17.1"
+ic-cdk-timers = { version = "0.12.0" }
 ic-certified-map = "0.4.0"
-url = "2.4.1"
-time = { version = "0.3.36", features = ["formatting"] }
-rand_chacha = { version = "0.3.1", optional = true }
+url = "2.5.4"
+time = { version = "0.3.41", features = ["formatting"] }
+rand_chacha = { version = "0.9.0" }
 getrandom = { version = "0.2.10", features = ["custom"] }
-sha2 = "0.9.1"
-simple_asn1 = "0.6.2"
-thiserror = "1.0.58"
+sha2 = "0.10.8"
+simple_asn1 = "0.6.3"
+thiserror = "2.0.12"
 bs58 = "0.5.1"
-ed25519-dalek = "1.0.1"
+ed25519-dalek = "2.1.1"
 
 [dev-dependencies]
 tokio = { version = "1.13.0", features = ["full"] }
 rand = "0.8.4"
 hex-literal = "0.2.1"
 solana-sdk = "1.18.8"
-
-[features]
-nonce = ["rand_chacha", "ic-cdk-timers"]

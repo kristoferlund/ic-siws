@@ -5,6 +5,7 @@ type PublicKey = blob;
 type SessionKey = PublicKey;
 type SiwsSignature = text;
 type Timestamp = nat64;
+type Nonce = text;
 
 type RuntimeFeature = variant { 
   IncludeUriInSeed; 
@@ -83,6 +84,6 @@ service : (settings_input : SettingsInput) -> {
   "get_caller_address" : () -> (GetAddressResponse) query;
   "get_principal" : (Address) -> (GetPrincipalResponse) query;
   "siws_prepare_login" : (Address) -> (PrepareLoginResponse);
-  "siws_login" : (SiwsSignature, Address, SessionKey) -> (LoginResponse);
+  "siws_login" : (SiwsSignature, Address, SessionKey, Nonce) -> (LoginResponse);
   "siws_get_delegation" : (Address, SessionKey, Timestamp) -> (GetDelegationResponse) query;
 };

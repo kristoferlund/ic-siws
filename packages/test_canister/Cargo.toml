@@ -7,7 +7,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-candid = "0.9.11"
-ic-cdk = "0.11.3"
+candid = "0.10.10"
+ic-cdk = "0.17.1"
 
 [dev-dependencies]
