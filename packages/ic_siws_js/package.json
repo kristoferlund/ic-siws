@@ -27,6 +27,11 @@
     "./react": "./dist/react/index.js",
     "./svelte": "./dist/svelte/index.js"
   },
+  "files": [
+    "dist",
+    "src",
+    "media"
+  ],
   "scripts": {
     "build": "rm -rf dist && node build.js && tsc --emitDeclarationOnly",
     "clean": "rm -rf dist",

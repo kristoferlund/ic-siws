@@ -1,4 +1,4 @@
-![Sign in with Solana for the Internet Computer](/media/header.png)
+![Sign in with Solana for the Internet Computer](./media/header.png)
 
 `ic-siws-js` is a JavaScript/TypeScript support library for easy frontend integration with SIWS-enabled [Internet Computer](https://internetcomputer.org) canisters. In addition to the core JS/TS API, `ic-siws-js` provides dedicated integrations for **React, Vue, and Svelte**.
 
