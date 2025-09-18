@@ -42,12 +42,26 @@ export function saveIdentity(
   sessionIdentity: Ed25519KeyIdentity,
   delegationChain: DelegationChain,
 ) {
+  const customSerialization = {
+    publicKey: Array.from(new Uint8Array(delegationChain.publicKey)),
+    delegations: delegationChain.delegations.map(d => ({
+      signature: Array.from(new Uint8Array(d.signature)),
+      delegation: {
+        pubkey: Array.from(d.delegation.pubkey),
+        expiration: d.delegation.expiration.toString(),
+        targets: d.delegation.targets?.map(t => t.toText())
+      }
+    }))
+  };
+
   localStorage.setItem(
     STORAGE_KEY,
     JSON.stringify({
       publicKey: publicKey.toBase58(),
       sessionIdentity: sessionIdentity.toJSON(),
-      delegationChain: delegationChain.toJSON(),
+      delegationChain: customSerialization,
+      // revert to standard once icp-core-js is fixed
+      //delegationChain: delegationChain.toJSON(),
     }),
   );
 }
