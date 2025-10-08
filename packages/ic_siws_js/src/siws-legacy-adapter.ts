@@ -46,6 +46,7 @@ interface SiwsMessageParams {
 // Extended wallet adapter interface with signIn method
 interface ExtendedWalletAdapter extends WalletAdapter {
   signIn?: (input?: SiwsSignInInput) => Promise<SiwsSignInOutput>;
+  signMessage?: (message: Uint8Array) => Promise<Uint8Array>;
   [SIWS_PATCHED]?: boolean;
   [SIWS_NETWORK]?: string;
 }
@@ -73,7 +74,7 @@ export class SiwsLegacyWalletAdapter {
       }
 
       // If doesn't have signMessage, can't patch
-      if (typeof adapter.signMessage !== 'function') {
+      if (typeof (adapter as any).signMessage !== 'function') {
         console.warn(`${adapter.name} doesn't support signMessage, cannot patch`);
         return adapter;
       }
@@ -108,7 +109,7 @@ export class SiwsLegacyWalletAdapter {
         const message = SiwsLegacyWalletAdapter.constructSiwsMessage(params);
         const messageBytes = new TextEncoder().encode(message);
 
-        const signature = await adapter.signMessage!(messageBytes);
+        const signature = await (adapter as any).signMessage!(messageBytes);
 
         return {
           account: {
