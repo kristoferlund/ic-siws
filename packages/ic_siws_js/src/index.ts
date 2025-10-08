@@ -27,6 +27,7 @@ import type {
 } from "@solana/wallet-adapter-base";
 import bs58 from "bs58";
 import type { PublicKey } from "@solana/web3.js";
+import { SiwsLegacyWalletAdapter } from './siws-legacy-adapter';
 
 export * from "./context.type";
 export * from "./service.interface";
@@ -78,8 +79,16 @@ export class SiwsManager {
     public adapter?: Adapter,
     public httpAgentOptions?: HttpAgentOptions,
     public actorOptions?: ActorConfig,
+    public network: string = 'devnet',
   ) {
     try {
+      // Patch adapter if needed
+      if (adapter) {
+        this.adapter = SiwsLegacyWalletAdapter.patchWalletAdapter(
+          adapter,
+          this.network
+        );
+      }
       // Attempt to load a stored identity from local storage.
       const [identityPublicKey, identity, delegationChain] = loadIdentity();
       this.updateState({
@@ -119,11 +128,16 @@ export class SiwsManager {
   }
 
   public async setAdapter(adapter: Adapter) {
-    if (!this.isSignInAdapter(adapter)) {
+    // Patch the adapter before checking
+    const patchedAdapter = SiwsLegacyWalletAdapter.patchWalletAdapter(
+      adapter,
+      this.network
+    );
+    if (!this.isSignInAdapter(patchedAdapter)) {
       throw new Error("Adapter does not support SIWS signing.");
     }
 
-    this.adapter = adapter;
+    this.adapter = patchedAdapter;
   }
 
   /**

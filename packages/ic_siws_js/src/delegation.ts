@@ -9,6 +9,7 @@ import type { SignedDelegation as ServiceSignedDelegation } from "./service.inte
  * Converts a Uint8Array or number array to a Signature object.
  */
 export function asSignature(signature: Uint8Array | number[]): Signature {
+  // @ts-ignore - ArrayBufferLike vs ArrayBuffer type issue, fixed in pending PR
   const arrayBuffer: ArrayBuffer = (signature as Uint8Array).buffer;
   const s: Signature = arrayBuffer as Signature;
   s.__signature__ = undefined;
@@ -21,6 +22,7 @@ export function asSignature(signature: Uint8Array | number[]): Signature {
 export function asDerEncodedPublicKey(
   publicKey: Uint8Array | number[]
 ): DerEncodedPublicKey {
+  // @ts-ignore - ArrayBufferLike vs ArrayBuffer type issue, fixed in pending PR
   const arrayBuffer: ArrayBuffer = (publicKey as Uint8Array).buffer;
   const pk: DerEncodedPublicKey = arrayBuffer as DerEncodedPublicKey;
   pk.__derEncodedPublicKey__ = undefined;
@@ -34,6 +36,7 @@ export function createDelegationChain(
   const delegations: SignedDelegation[] = [
     {
       delegation: new Delegation(
+        // @ts-ignore - ArrayBufferLike vs ArrayBuffer type issue, fixed in pending PR
         (signedDelegation.delegation.pubkey as Uint8Array).buffer,
         signedDelegation.delegation.expiration,
         signedDelegation.delegation.targets[0] as Principal[]

@@ -42,10 +42,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "peerDependencies": {
-    "@dfinity/agent": ">=2.1.2",
-    "@dfinity/candid": ">=2.1.1",
-    "@dfinity/identity": ">=2.1.2",
-    "@dfinity/principal": ">=2.1.2",
+    "@dfinity/agent": "^2.1.2",
+    "@dfinity/candid": "^2.1.1",
+    "@dfinity/identity": "^2.1.2",
+    "@dfinity/principal": "^2.1.2",
     "@solana/wallet-adapter-base": ">=0.9.23",
     "@solana/web3.js": ">=1.77.3",
     "react": ">=18.3.1",
