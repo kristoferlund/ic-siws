@@ -133,11 +133,11 @@ export class SiwsManager {
       adapter,
       this.network
     );
-    if (!this.isSignInAdapter(adapter)) {
+    if (!this.isSignInAdapter(patchedAdapter)) {
       throw new Error("Adapter does not support SIWS signing.");
     }
 
-    this.adapter = adapter;
+    this.adapter = patchedAdapter;
   }
 
   /**
