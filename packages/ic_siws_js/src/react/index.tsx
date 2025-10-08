@@ -13,17 +13,19 @@ export function SiwsIdentityProvider({
   adapter,
   httpAgentOptions,
   actorOptions,
+  network = 'devnet',
   children,
 }: {
   canisterId: string;
   adapter?: Adapter;
   httpAgentOptions?: HttpAgentOptions;
   actorOptions?: ActorConfig;
+  network?: string;
   children: React.ReactNode;
 }) {
   const siwsManager = useMemo(
     () => new SiwsManager(canisterId, adapter, httpAgentOptions, actorOptions),
-    [canisterId, adapter, httpAgentOptions, actorOptions],
+    [canisterId, adapter, httpAgentOptions, actorOptions, network],
   );
 
   const state = useSelector(siwsStateStore, (state) => state.context);
